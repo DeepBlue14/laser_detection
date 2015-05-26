@@ -1,3 +1,12 @@
+/*
+ * File: GreenDetectionCv.h
+ * Author: James Kuczynski
+ * Email: jkuczyns@cs.uml.edu
+ * File Description: 
+ *
+ * Created May 26, 2015 at 6:00pm
+ */
+
 #ifndef LASER_DETECTION_CV_H
 #define LASER_DETECTION_CV_H
 

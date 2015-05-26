@@ -3,18 +3,25 @@
 ![Logo](https://github.com/DeepBlue14/laser_detection/blob/master/laser.jpg)
 
 **Index**
--Project Synopsis
+- Project Synopsis
+- Dependencies
 - Build & Run instructions
 
 
 ####**Project Synposis**
 
-...
+The purpose of this project is to focus on a given object which the laser is pointing at.  Data concerning the object (distance, etc) will be computed.
+
+
+####**Dependencies**
+
+- ROS
+- PCL
+- OpenCV
 
 
 ####**Build & Run**
 
-...
 
 **Run:**
 ```bash

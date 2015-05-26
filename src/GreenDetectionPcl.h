@@ -2,6 +2,7 @@
  * File:   GreenDetectionPcl.h
  * Author: James Kuczynski
  * Email: jkuczyns@cs.uml.edu
+ * File Description: 
  *
  * Created May 26, 2015 at 10:30am
  */
