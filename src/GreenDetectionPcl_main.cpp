@@ -1,3 +1,12 @@
+/*
+ * File:   GreenDetectionPcl_main.cpp
+ * Author: James Kuczynski
+ * Email: jkuczyns@cs.uml.edu
+ * File Description: 
+ *
+ * Created May 26, 2015 at 11:00am
+ */
+
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -22,10 +31,13 @@ GreenDetectionPcl greenDetectionPcl;
 
 void drCallback(laser_detection::DynConfigConfig& config, uint32_t level)
 {
-    greenDetectionPcl.setActivateGuiBool(config.Activate);
-    greenDetectionPcl.setRedInt(config.Red);
-    greenDetectionPcl.setGreenInt(config.Green);
-    greenDetectionPcl.setBlueInt(config.Blue);
+    if(config.Activate == true)
+    {
+        greenDetectionPcl.setActivateGuiBool(config.Activate);
+        greenDetectionPcl.setRedInt(config.Red);
+        greenDetectionPcl.setGreenInt(config.Green);
+        greenDetectionPcl.setBlueInt(config.Blue);
+    }
 }
 
 
@@ -43,7 +55,7 @@ int main(int argc, char **argv)
                                                                         &GreenDetectionPcl::dcallback,
                                                                         &greenDetectionPcl);
 
-    *mainsPub = nh.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("/frankenscooter/camera/image", 1);
+    *mainsPub = nh.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("/frankenscooter/camera/points", 1);
 
     dynamic_reconfigure::Server<laser_detection::DynConfigConfig> server;
     dynamic_reconfigure::Server<laser_detection::DynConfigConfig>::CallbackType f;

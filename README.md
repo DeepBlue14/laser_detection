@@ -15,10 +15,12 @@
 ...
 
 **Run:**
-```
+```bash
 roslaunch openni2_launch openni2.launch
 rosrun laser_detection GreenDetectionPcl_main
 rosrun rqt_reconfigure rqt_reconfigure
+rosrun rviz rviz
 ```
 
+In Rviz, select a "PointCloud2" option, and for the topic choose "/frankenscooter/camera/points".
 Next, select "GreenDetectionPcl" from the menu of the rqt_reconfigure gui.

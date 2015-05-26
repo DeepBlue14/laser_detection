@@ -15,7 +15,33 @@ void GreenDetectionPcl::dcallback(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg)
 {
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclCloud = msg;
 
+    filterByColor(pclCloud);
+
     pub->publish(pclCloud);
+}
+
+
+void GreenDetectionPcl::filterByColor(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg)
+{
+    for(size_t i = 0; i < msg->points.size(); i++)
+    {
+        if(msg->points[i].r < redInt)
+        {
+            msg->points[i].r = 0;
+            msg->points[i].g = 0;
+            msg->points[i].b = 0;
+        }
+
+        if(msg->points[i].g < greenInt)
+        {
+            msg->points[i].r = 0;
+            msg->points[i].g = 0;
+            msg->points[i].b = 0;
+        }
+
+
+    }
+
 }
 
 

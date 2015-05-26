@@ -1,3 +1,11 @@
+/*
+ * File:   GreenDetectionPcl.h
+ * Author: James Kuczynski
+ * Email: jkuczyns@cs.uml.edu
+ *
+ * Created May 26, 2015 at 10:30am
+ */
+
 #ifndef GREEN_DETECTION_PCL_H
 #define GREEN_DETECTION_PCL_H
 
@@ -6,8 +14,8 @@
 
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <dynamic_reconfigure/server.h> // ???
-#include <laser_detection/DynConfigConfig.h> // ???
+#include <dynamic_reconfigure/server.h>
+#include <laser_detection/DynConfigConfig.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
@@ -52,6 +60,7 @@ class GreenDetectionPcl
     public:
 	GreenDetectionPcl();
 	void dcallback(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg);
+    void filterByColor(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg);
 	void setActivateGuiBool(bool activateGuiBool);
 	bool getActivateGuiBool();
 	void setRedInt(int redInt);
