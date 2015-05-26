@@ -177,7 +177,14 @@ include_directories(
 # catkin_add_nosetests(test)
 
 add_executable(GreenDetectionPcl_main src/GreenDetectionPcl_main.cpp
-				      src/GreenDetectionPcl.cpp)
+	                			      src/GreenDetectionPcl.cpp)
 target_link_libraries(GreenDetectionPcl_main ${catkin_LIBRARIES})
 target_link_libraries(GreenDetectionPcl_main ${OpenCV_LIBRARIES})
 add_dependencies(GreenDetectionPcl_main ${laser_detection}_gencfg)
+
+add_executable(GreenDetectionCv_main src/GreenDetectionCv_main.cpp
+                                     src/GreenDetectionCv.cpp)
+target_link_libraries(GreenDetectionCv_main ${catkin_LIBRARIES})
+target_link_libraries(GreenDetectionCv_main ${OpenCV_LIBRARIES})
+add_dependencies(GreenDetectionCv_main ${laser_detection}_gencfg)
+     

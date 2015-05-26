@@ -1,5 +1,7 @@
 ##**Laser Detection**
 
+![Logo](https://github.com/DeepBlue14/laser_detection/blob/master/laser.jpg)
+
 **Index**
 -Project Synopsis
 - Build & Run instructions
