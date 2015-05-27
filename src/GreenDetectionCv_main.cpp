@@ -27,9 +27,12 @@ void drCallback(laser_detection::DynConfigConfig& config, uint32_t level)
     if(config.Activate == true)
     {
         greenDetectionCv.setActivateGuiBool(config.Activate);
-        greenDetectionCv.setRedInt(config.Red);
-        greenDetectionCv.setGreenInt(config.Green);
-        greenDetectionCv.setBlueInt(config.Blue);
+        greenDetectionCv.setRedMinInt(config.Red_Min);
+        greenDetectionCv.setGreenMinInt(config.Green_Min);
+        greenDetectionCv.setBlueMinInt(config.Blue_Min);
+        greenDetectionCv.setRedMaxInt(config.Red_Max);
+        greenDetectionCv.setGreenMaxInt(config.Green_Max);
+        greenDetectionCv.setBlueMaxInt(config.Blue_Max);
     }
 }
 

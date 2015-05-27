@@ -52,9 +52,12 @@ class GreenDetectionCv
 {
     private:
 	static bool activateGuiBool;
-	static int redInt;
-	static int greenInt;
-	static int blueInt;
+	static int redMinInt;
+	static int greenMinInt;
+	static int blueMinInt;
+    static int redMaxInt;
+    static int greenMaxInt;
+    static int blueMaxInt;
 
 	Publisher* pub;
 
@@ -64,12 +67,18 @@ class GreenDetectionCv
     //void filterByColor();
 	void setActivateGuiBool(bool activateGuiBool);
 	bool getActivateGuiBool();
-	void setRedInt(int redInt);
-	int getRedInt();
-	void setGreenInt(int greenInt);
-	int getGreenInt();
-	void setBlueInt(int blueInt);
-	int getBlueInt();
+	void setRedMinInt(int redMinInt);
+	int getRedMinInt();
+	void setGreenMinInt(int greenMinInt);
+	int getGreenMinInt();
+	void setBlueMinInt(int blueMinInt);
+	int getBlueMinInt();
+    void setRedMaxInt(int redMaxInt);
+    int getRedMaxInt();
+    void setGreenMaxInt(int greenMaxInt);
+    int getGreenMaxInt();
+    void setBlueMaxInt(int blueMaxInt);
+    int getBlueMaxInt();
 	Publisher* getPublisher();
 	~GreenDetectionCv();
 

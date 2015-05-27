@@ -2,9 +2,12 @@
 
 
 bool GreenDetectionCv::activateGuiBool = false;
-int GreenDetectionCv::redInt = 0;
-int GreenDetectionCv::greenInt = 0;
-int GreenDetectionCv::blueInt = 0;
+int GreenDetectionCv::redMinInt = 0;
+int GreenDetectionCv::greenMinInt = 0;
+int GreenDetectionCv::blueMinInt = 0;
+int GreenDetectionCv::redMaxInt = 0;
+int GreenDetectionCv::greenMaxInt = 0;
+int GreenDetectionCv::blueMaxInt = 0;
 
 
 GreenDetectionCv::GreenDetectionCv()
@@ -31,9 +34,35 @@ void GreenDetectionCv::callback(const sensor_msgs::ImageConstPtr& input)
     {
         ROS_ERROR("cv_bridge exception: %s", e.what() );
     }
-    //pub->publish(input);
+    
+   cvImage = cv_ptr->image;
+   //- - - - - - - -
+    
+   uchar r, g, b; //int instead of uchar???
+   for(size_t i = 0; i < cvImage.rows; i++)
+   {
+       cv::Vec3d* pixel = cvImage.ptr<cv::Vec3d>(i); // point to first pixel in row
+     for(size_t  k = 0; k < cvImage.cols; k++)
+     {
+        //r = pixel[k][2];
+        //g = pixel[k][1];
+        //r = pixel[k][0];
+
+        if(pixel[k][2] < greenMinInt)
+        {
+            pixel[k][2] = 0;
+            pixel[k][1] = 0;
+            pixel[k][0] = 0;
+        }
+        
+        
+
+        
+     }
+   }
     
     
+   //- - - - - - - -
 
     pub->publish(cv_ptr->toImageMsg() );
 }
@@ -51,39 +80,75 @@ bool GreenDetectionCv::getActivateGuiBool()
 }
 
 
-void GreenDetectionCv::setRedInt(int redInt)
+void GreenDetectionCv::setRedMinInt(int redMinInt)
 {
-    this->redInt = redInt;
+    this->redMinInt = redMinInt;
 }
 
 
-int GreenDetectionCv::getRedInt()
+int GreenDetectionCv::getRedMinInt()
 {
-    return redInt;
+    return redMinInt;
 }
 
 
-void GreenDetectionCv::setGreenInt(int greenInt)
+void GreenDetectionCv::setGreenMinInt(int greenMinInt)
 {
-    this->greenInt = greenInt;
+    this->greenMinInt = greenMinInt;
 }
 
 
-int GreenDetectionCv::getGreenInt()
+int GreenDetectionCv::getGreenMinInt()
 {
-    return greenInt;
+    return greenMinInt;
 }
 
 
-void GreenDetectionCv::setBlueInt(int blueInt)
+void GreenDetectionCv::setBlueMinInt(int blueMinInt)
 {
-    this->blueInt = blueInt;
+    this->blueMinInt = blueMinInt;
 }
 
 
-int GreenDetectionCv::getBlueInt()
+int GreenDetectionCv::getBlueMinInt()
 {
-    return blueInt;
+    return blueMinInt;
+}
+
+
+void GreenDetectionCv::setRedMaxInt(int redMaxInt)
+{
+    this->redMaxInt = redMaxInt;
+}
+
+
+int GreenDetectionCv::getRedMaxInt()
+{
+    return redMaxInt;
+}
+
+
+void GreenDetectionCv::setGreenMaxInt(int greenMaxInt)
+{
+    this->greenMaxInt = greenMaxInt;
+}
+
+
+int GreenDetectionCv::getGreenMaxInt()
+{
+    return greenMaxInt;
+}
+
+
+void GreenDetectionCv::setBlueMaxInt(int blueMaxInt)
+{
+    this->blueMaxInt = blueMaxInt;
+}
+
+
+int GreenDetectionCv::getBlueMaxInt()
+{
+    return blueMaxInt;
 }
 
 
