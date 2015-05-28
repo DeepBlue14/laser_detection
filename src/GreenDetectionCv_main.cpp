@@ -34,13 +34,18 @@ void drCallback(laser_detection::DynConfigConfig& config, uint32_t level)
         greenDetectionCv.setGreenMaxInt(config.Green_Max);
         greenDetectionCv.setBlueMaxInt(config.Blue_Max);
     }
+    else
+    {
+        ROS_INFO("GUI has not been activated\n");
+    }
 }
 
 
 int main(int argc, char **argv)
 {
     init(argc, argv, "GreenDetectionCv");
-
+    
+    ROS_INFO("Starting node\n");
 
     NodeHandle nh;
 
@@ -51,7 +56,7 @@ int main(int argc, char **argv)
                                                         &GreenDetectionCv::callback,
                                                         &greenDetectionCv);
 
-    *mainsPub = nh.advertise<sensor_msgs::Image>("/frankenscooter/camera/image", 10);
+    *mainsPub = nh.advertise<sensor_msgs::Image>("/scooter/camera/image", 10);
 
     dynamic_reconfigure::Server<laser_detection::DynConfigConfig> server;
     dynamic_reconfigure::Server<laser_detection::DynConfigConfig>::CallbackType f;
@@ -60,6 +65,6 @@ int main(int argc, char **argv)
 
 
     spin();
-
+    
     return EXIT_SUCCESS;
 }

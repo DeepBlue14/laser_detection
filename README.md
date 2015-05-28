@@ -31,5 +31,6 @@ rosrun rqt_reconfigure rqt_reconfigure
 rosrun rviz rviz
 ```
 
-In Rviz, select a "PointCloud2" option, and for the topic choose "/frankenscooter/camera/points".
-Next, select "GreenDetectionPcl" from the menu of the rqt_reconfigure gui.
+- In the rqt_reconfigure gui, select *camera* --> *driver* --> *depth_registration*
+- In Rviz, select a "PointCloud2" option, and for the topic choose "/scooter/depth_registered/points".
+- Select "GreenDetectionPcl" from the menu of the rqt_reconfigure gui.

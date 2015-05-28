@@ -10,6 +10,7 @@
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <geometry_msgs/Vector3.h>
 #include <dynamic_reconfigure/server.h>
 #include <laser_detection/DynConfigConfig.h>
 
@@ -47,18 +48,21 @@ void drCallback(laser_detection::DynConfigConfig& config, uint32_t level)
 int main(int argc, char **argv)
 {
     init(argc, argv, "GreenDetectionPcl");
-
+    
+    ROS_INFO("Starting program\n");
 
     NodeHandle nh;
 
-    Publisher* mainsPub = greenDetectionPcl.getPublisher();
+    Publisher* mainsPcPubPtr = greenDetectionPcl.getPcPubPtr();
+    Publisher* mainsVec3PubPtr = greenDetectionPcl.getVec3PubPtr();
 
-    Subscriber sub = nh.subscribe<pcl::PointCloud<pcl::PointXYZRGB>::Ptr >("/camera/depth_registered/points",
+    Subscriber sub = nh.subscribe<PointCloud<PointXYZRGB>::Ptr >("/camera/depth_registered/points",
                                                                         1,
                                                                         &GreenDetectionPcl::dcallback,
                                                                         &greenDetectionPcl);
 
-    *mainsPub = nh.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("/frankenscooter/camera/points", 1);
+    *mainsPcPubPtr = nh.advertise<PointCloud<PointXYZRGB> >("/scooter/depth_registered/points", 1);
+    *mainsVec3PubPtr = nh.advertise<geometry_msgs::Vector3>("/scooter/vector3/point", 1);
 
     dynamic_reconfigure::Server<laser_detection::DynConfigConfig> server;
     dynamic_reconfigure::Server<laser_detection::DynConfigConfig>::CallbackType f;

@@ -60,16 +60,22 @@ class GreenDetectionPcl
     static int greenMaxInt;
     static int blueMaxInt;
 
+    float numPointsSelected;
+    float combinedX;
+    float  combinedY;
+    float combinedZ;
+    geometry_msgs::Vector3 avPoint;
+
     geometry_msgs::Vector3 pointVec3;
-	Publisher* pub;
+	Publisher* pcPubPtr;
+    Publisher* vec3PubPtr;
 
     public:
 	GreenDetectionPcl();
-	void dcallback(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg);
-    void filterByColor(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg);
-    void conditionalOutlierRemoval(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg);
-    void radiusOutlierRemoval(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg);
-    void calculateLaserLoc();
+	void dcallback(PointCloud<PointXYZRGB>::Ptr msg);
+    void filterByColor(PointCloud<PointXYZRGB>::Ptr msg);
+    void conditionalOutlierRemoval(PointCloud<PointXYZRGB>::Ptr msg);
+    void radiusOutlierRemoval(PointCloud<PointXYZRGB>::Ptr msg);
 	void setActivateGuiBool(bool activateGuiBool);
 	bool getActivateGuiBool();
 	void setRedMinInt(int redMinInt);
@@ -84,7 +90,8 @@ class GreenDetectionPcl
     int getGreenMaxInt();
     void setBlueMaxInt(int blueMaxInt);
     int getBlueMaxInt();
-	Publisher* getPublisher();
+	Publisher* getPcPubPtr();
+    Publisher* getVec3PubPtr();
 	~GreenDetectionPcl();
 
 };

@@ -11,61 +11,88 @@ int GreenDetectionPcl::blueMaxInt = 0;
 
 GreenDetectionPcl::GreenDetectionPcl()
 {
-    pub = new Publisher();
+    pcPubPtr = new Publisher();
+    vec3PubPtr = new Publisher();
 }
 
 
-void GreenDetectionPcl::dcallback(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg)
+void GreenDetectionPcl::dcallback(PointCloud<PointXYZRGB>::Ptr msg)
 {
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclCloud = msg;
+    PointCloud<PointXYZRGB>::Ptr pclCloud = msg;
 
     filterByColor(pclCloud);
 
-    pub->publish(pclCloud);
+    pcPubPtr->publish(pclCloud);
+    vec3PubPtr->publish(pointVec3);
 }
 
 
-void GreenDetectionPcl::filterByColor(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg)
+void GreenDetectionPcl::filterByColor(PointCloud<PointXYZRGB>::Ptr msg)
 {
-    for(size_t i = 0; i < msg->points.size(); i++)
+    numPointsSelected = 0.0;
+    combinedX = 0.0;
+    combinedY = 0.0;
+    combinedZ = 0.0;
+
+    if(activateGuiBool == true)
     {
-        if((msg->points[i].r < getRedMinInt() ) && (msg->points[i].r > getRedMaxInt() ) )
+        for(size_t i = 0; i < msg->points.size(); i++)
         {
-            msg->points[i].r = 0;
-            msg->points[i].g = 0;
-            msg->points[i].b = 0;
-        }
+            if((msg->points[i].r < getRedMinInt() ) || (msg->points[i].r > getRedMaxInt() ) )
+            {
+                msg->points[i].r = 0;
+                msg->points[i].g = 0;
+                msg->points[i].b = 0;
+            }
+            else if((msg->points[i].g < getGreenMinInt() ) || (msg->points[i].g > getGreenMaxInt() ) )
+            {
+                msg->points[i].r = 0;
+                msg->points[i].g = 0;
+                msg->points[i].b = 0;
+            }
+            else if((msg->points[i].b < getBlueMinInt() ) || (msg->points[i].b > getBlueMaxInt() ) )
+            {
+                msg->points[i].r = 0;
+                msg->points[i].g = 0;
+                msg->points[i].b = 0;
+            }
+            else
+            {
+                //valid points
+                numPointsSelected += 1.0;
+                combinedX += msg->points[i].x;
+                combinedY += msg->points[i].y;
+                combinedZ += msg->points[i].z;
 
-        if((msg->points[i].g < getGreenMinInt() ) && (msg->points[i].g > getGreenMaxInt() ) )
-        {
-            msg->points[i].r = 0;
-            msg->points[i].g = 0;
-            msg->points[i].b = 0;
-        }
-
-        if((msg->points[i].b < getBlueMinInt() ) && (msg->points[i].b > getBlueMaxInt() ) )
-        {
-            msg->points[i].r = 0;
-            msg->points[i].g = 0;
-            msg->points[i].b = 0;
-        }
+                avPoint.x = combinedX / numPointsSelected;
+                avPoint.y = combinedY / numPointsSelected;
+                avPoint.z = combinedZ / numPointsSelected;
+            }
 
 
+        } // end of for loop
     }
 
-}
+    if(numPointsSelected == 0)
+    {
+        avPoint.x = -1;
+        avPoint.y = -1;
+        avPoint.z = -1;
+    }
+
+} // end of method
 
 
-void GreenDetectionPcl::conditionalOutlierRemoval(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg)
+void GreenDetectionPcl::conditionalOutlierRemoval(PointCloud<PointXYZRGB>::Ptr msg)
 {
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZRGB>);
+    PointCloud<PointXYZRGB>::Ptr cloud_filtered(new PointCloud<PointXYZRGB>);
 
     // build the condition
-    pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond(new pcl::ConditionAnd<pcl::PointXYZRGB>() );
-    range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZRGB>::ConstPtr(new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::GT, 0.0)));
-    range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZRGB>::ConstPtr(new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::LT, 0.8)));
+    ConditionAnd<PointXYZRGB>::Ptr range_cond(new ConditionAnd<PointXYZRGB>() );
+    range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr(new FieldComparison<PointXYZRGB>("z", ComparisonOps::GT, 0.0)));
+    range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr(new FieldComparison<PointXYZRGB>("z", ComparisonOps::LT, 0.8)));
     // build the filter
-    pcl::ConditionalRemoval<pcl::PointXYZRGB> condrem(range_cond);
+    ConditionalRemoval<PointXYZRGB> condrem(range_cond);
     condrem.setInputCloud(msg);
     condrem.setKeepOrganized(true);
     // apply filter
@@ -73,11 +100,11 @@ void GreenDetectionPcl::conditionalOutlierRemoval(pcl::PointCloud<pcl::PointXYZR
 }
 
 
-void GreenDetectionPcl::radiusOutlierRemoval(pcl::PointCloud<pcl::PointXYZRGB>::Ptr msg)
+void GreenDetectionPcl::radiusOutlierRemoval(PointCloud<PointXYZRGB>::Ptr msg)
 {
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZRGB>);
+    PointCloud<PointXYZRGB>::Ptr cloud_filtered(new PointCloud<PointXYZRGB>);
 
-    pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem; //or use PointXYZ???
+    RadiusOutlierRemoval<PointXYZRGB> outrem; //or use PointXYZ???
     // build the filter
     outrem.setInputCloud(msg);
     outrem.setRadiusSearch(0.8);
@@ -86,12 +113,6 @@ void GreenDetectionPcl::radiusOutlierRemoval(pcl::PointCloud<pcl::PointXYZRGB>::
     outrem.filter(*cloud_filtered);
 
     msg = cloud_filtered;
-}
-
-
-void GreenDetectionPcl::calculateLaserLoc()
-{
-    ;
 }
 
 
@@ -179,9 +200,15 @@ int GreenDetectionPcl::getBlueMaxInt()
 }
 
 
-Publisher* GreenDetectionPcl::getPublisher()
+Publisher* GreenDetectionPcl::getPcPubPtr()
 {
-    return pub;
+    return pcPubPtr;
+}
+
+
+Publisher* GreenDetectionPcl::getVec3PubPtr()
+{
+    return vec3PubPtr;
 }
 
 

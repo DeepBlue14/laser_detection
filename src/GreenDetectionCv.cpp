@@ -18,6 +18,18 @@ GreenDetectionCv::GreenDetectionCv()
 
 void GreenDetectionCv::callback(const sensor_msgs::ImageConstPtr& input)
 {
+    //initialize variables
+    minX = 1000000;
+    minY = 1000000;
+    maxX = -100000;
+    maxY = -100000;
+
+    for(size_t i = 0; i < validXVec.size(); i++)
+    {
+        validXVec.pop_back();
+        validYVec.pop_back();
+    }
+
     //http://www.cse.sc.edu/~jokane/teaching/574/notes-images.pdf
     
     //convert to OpenCV type- - - - - - - - - - - - - - - - - -
@@ -35,34 +47,71 @@ void GreenDetectionCv::callback(const sensor_msgs::ImageConstPtr& input)
         ROS_ERROR("cv_bridge exception: %s", e.what() );
     }
     
-   cvImage = cv_ptr->image;
-   //- - - - - - - -
-    
-   uchar r, g, b; //int instead of uchar???
-   for(size_t i = 0; i < cvImage.rows; i++)
-   {
-       cv::Vec3d* pixel = cvImage.ptr<cv::Vec3d>(i); // point to first pixel in row
-     for(size_t  k = 0; k < cvImage.cols; k++)
-     {
-        //r = pixel[k][2];
-        //g = pixel[k][1];
-        //r = pixel[k][0];
+    cvImage = cv_ptr->image;
 
-        if(pixel[k][2] < greenMinInt)
+    for(size_t y = 0; y < cvImage.rows; y++)
+    {
+        for(size_t x = 0; x < cvImage.cols; x++)
         {
-            pixel[k][2] = 0;
-            pixel[k][1] = 0;
-            pixel[k][0] = 0;
-        }
-        
-        
+            Vec3b color = cvImage.at<Vec3b>(Point(x,y));
 
-        
-     }
-   }
-    
-    
-   //- - - - - - - -
+            float red = color.val[2];
+            float green = color.val[1];
+            float blue = color.val[0];
+            //cout << red << "\n" << green << "\n" << blue << "\n\n\n" << endl;
+            //- - -
+            
+            if( (red < redMinInt) || (red > redMaxInt) )
+            {
+                red = 0;
+                green = 0;
+                blue = 0;
+            }
+            else if( (green < greenMinInt) || (green > greenMaxInt) )
+            {
+                red = 0;
+                green = 0;
+                blue = 0;
+            }
+            else if( (blue < blueMinInt) || (blue > blueMaxInt) )
+            {
+                red = 0;
+                green = 0;
+                blue = 0;
+            }
+            else
+            {
+                validXVec.push_back(x);
+                validYVec.push_back(y);
+                if(x < minX)
+                {
+                    minX = x;
+                }
+                if(x > maxX)
+                {
+                    maxX = x;
+                }
+                if(y < minY)
+                {
+                    minY = y;
+                }
+                if(y > maxY)
+                {
+                    maxY = y;
+                }
+            }
+
+            //- - -
+            color.val[2] = red;
+            color.val[1] = green;
+            color.val[0] = blue;
+            cvImage.at<Vec3b>(Point(x,y)) = color;
+        }
+    }
+
+
+    //rectangle(cvImage, Point(0, 0), Point(10, 10), Scalar(255, 0, 0) );
+    rectangle(cvImage, Point(minX, minY), Point(maxX, maxY), Scalar(200, 0, 0) );
 
     pub->publish(cv_ptr->toImageMsg() );
 }

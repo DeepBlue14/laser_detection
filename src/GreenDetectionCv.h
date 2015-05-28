@@ -4,6 +4,8 @@
  * Email: jkuczyns@cs.uml.edu
  * File Description: 
  *
+ * Reference: http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/bounding_rects_circles/bounding_rects_circles.html
+ *
  * Created May 26, 2015 at 6:00pm
  */
 
@@ -51,36 +53,44 @@ using namespace std;
 class GreenDetectionCv
 {
     private:
-	static bool activateGuiBool;
-	static int redMinInt;
-	static int greenMinInt;
-	static int blueMinInt;
-    static int redMaxInt;
-    static int greenMaxInt;
-    static int blueMaxInt;
+	    static bool activateGuiBool;
+	    static int redMinInt;
+	    static int greenMinInt;
+	    static int blueMinInt;
+        static int redMaxInt;
+        static int greenMaxInt;
+        static int blueMaxInt;
 
-	Publisher* pub;
+        vector<int> validXVec;
+        vector<int> validYVec;
+        int minX;
+        int minY;
+        int maxX;
+        int maxY;
+
+	    Publisher* pub;
 
     public:
-	GreenDetectionCv();
-	void callback(const sensor_msgs::ImageConstPtr& input);
-    //void filterByColor();
-	void setActivateGuiBool(bool activateGuiBool);
-	bool getActivateGuiBool();
-	void setRedMinInt(int redMinInt);
-	int getRedMinInt();
-	void setGreenMinInt(int greenMinInt);
-	int getGreenMinInt();
-	void setBlueMinInt(int blueMinInt);
-	int getBlueMinInt();
-    void setRedMaxInt(int redMaxInt);
-    int getRedMaxInt();
-    void setGreenMaxInt(int greenMaxInt);
-    int getGreenMaxInt();
-    void setBlueMaxInt(int blueMaxInt);
-    int getBlueMaxInt();
-	Publisher* getPublisher();
-	~GreenDetectionCv();
+	    GreenDetectionCv();
+	    void callback(const sensor_msgs::ImageConstPtr& input);
+        //void filterByColor();
+        //void drawBoundingBox();
+	    void setActivateGuiBool(bool activateGuiBool);
+	    bool getActivateGuiBool();
+	    void setRedMinInt(int redMinInt);
+	    int getRedMinInt();
+	    void setGreenMinInt(int greenMinInt);
+	    int getGreenMinInt();
+	    void setBlueMinInt(int blueMinInt);
+	    int getBlueMinInt();
+        void setRedMaxInt(int redMaxInt);
+        int getRedMaxInt();
+        void setGreenMaxInt(int greenMaxInt);
+        int getGreenMaxInt();
+        void setBlueMaxInt(int blueMaxInt);
+        int getBlueMaxInt();
+	    Publisher* getPublisher();
+	    ~GreenDetectionCv();
 
 };
 
