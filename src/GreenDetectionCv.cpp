@@ -101,7 +101,6 @@ void GreenDetectionCv::callback(const sensor_msgs::ImageConstPtr& input)
                 }
             }
 
-            //- - -
             color.val[2] = red;
             color.val[1] = green;
             color.val[0] = blue;
@@ -109,8 +108,18 @@ void GreenDetectionCv::callback(const sensor_msgs::ImageConstPtr& input)
         }
     }
 
+    Mat threshold_output;
+    threshold(cvImage, threshold_output, 100, 255, THRESH_BINARY);
+    cvImage = threshold_output;
 
-    //rectangle(cvImage, Point(0, 0), Point(10, 10), Scalar(255, 0, 0) );
+    /*for(size_t i = 0; i < cvImage.rows; i++)
+    {
+        for(size_t i = 0; i < cv_image.cols; i++)
+        {
+            if(
+        }
+    }*/
+
     rectangle(cvImage, Point(minX, minY), Point(maxX, maxY), Scalar(200, 0, 0) );
 
     pub->publish(cv_ptr->toImageMsg() );
