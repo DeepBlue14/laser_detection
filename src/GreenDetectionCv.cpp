@@ -107,20 +107,29 @@ void GreenDetectionCv::callback(const sensor_msgs::ImageConstPtr& input)
             cvImage.at<Vec3b>(Point(x,y)) = color;
         }
     }
-
-    Mat threshold_output;
-    threshold(cvImage, threshold_output, 100, 255, THRESH_BINARY);
-    cvImage = threshold_output;
-
-    /*for(size_t i = 0; i < cvImage.rows; i++)
+/*
+ * http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/
+    Mat image_gray;
+    cvtColor(cvImage, image_gray, CV_BGR2GRAY);
+    vector<Vec3f> circles;
+    HoughCircles(image_gray, circles, CV_HOUGH_GRADIENT, 5, image_gray.rows/6, 200, 20, 10, 40);
+    ROS_INFO("Number of circles detected:%lu", circles.size() );
+    for(size_t i = 0; i < circles.size(); i++)
     {
-        for(size_t i = 0; i < cv_image.cols; i++)
-        {
-            if(
-        }
-    }*/
+        //ROS_INFO("looping...");
+        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+        int radius = cvRound(circles[i][2]);
+        ROS_INFO("\tAdding circle of radius: %d", radius);
+        // circle center
+        circle(cvImage, center, 3, Scalar(255, 0, 0), -1);
+        // circle outline
+        circle(cvImage, center, radius, Scalar(0, 0, 255), 1);
+    }
 
-    rectangle(cvImage, Point(minX, minY), Point(maxX, maxY), Scalar(200, 0, 0) );
+    //- - - - - - -
+*/
+
+    cv_ptr->image = cvImage;
 
     pub->publish(cv_ptr->toImageMsg() );
 }

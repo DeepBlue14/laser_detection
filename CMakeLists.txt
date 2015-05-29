@@ -189,4 +189,10 @@ add_executable(GreenDetectionCv_main src/GreenDetectionCv_main.cpp
 target_link_libraries(GreenDetectionCv_main ${catkin_LIBRARIES})
 target_link_libraries(GreenDetectionCv_main ${OpenCV_LIBRARIES})
 add_dependencies(GreenDetectionCv_main ${laser_detection}_gencfg)
-     
+    
+
+
+add_executable(GreenPart2_main src/GreenPart2_main.cpp
+                               src/GreenPart2.cpp)
+target_link_libraries(GreenPart2_main ${catkin_LIBRARIES})
+target_link_libraries(GreenPart2_main ${OpenCV_Libraries})
