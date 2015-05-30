@@ -31,10 +31,17 @@ int main(int argc, char **argv)
     Publisher* mainsImagePub = greenPart2.getPublisher();//will this cause an issue, because I am getting 2 pointers to the SAME publisher???
     Publisher* mainsPointcloudPub = greenPart2.getPublisher();
 
+    /*
     Subscriber imageSub = nh.subscribe<sensor_msgs::Image>("/camera/rgb/image_rect_color",
                                                              1,
                                                              &GreenPart2::imageCallback,
                                                              &greenPart2);
+    */
+    Subscriber imageSub = nh.subscribe<sensor_msgs::Image>("/scooter/camera/image",
+                                                            1,
+                                                            &GreenPart2::imageCallback,
+                                                            &greenPart2);
+
     Subscriber pointcloudSub = nh.subscribe<PointCloud<PointXYZRGB>::Ptr>("/camera/depth_registered/points",
                                                                       1,
                                                                       &GreenPart2::pointcloudCallback,

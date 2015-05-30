@@ -60,6 +60,8 @@ class GreenPart2
         void imageCallback(const sensor_msgs::ImageConstPtr& image);
         void pointcloudCallback(PointCloud<PointXYZRGB>::Ptr cloud);
         void copyColorToCloud();
+        PointCloud<PointXYZRGB>::Ptr euclideanClusterExtraction(PointCloud<PointXYZRGB>::Ptr cloud);
+        void conditionalEuclideanClustering(PointCloud<PointXYZRGB>::Ptr cloud);
         Publisher* getPublisher();
         ~GreenPart2();
 };
