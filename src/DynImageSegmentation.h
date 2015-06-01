@@ -9,8 +9,8 @@
  * Created May 26, 2015 at 6:00pm
  */
 
-#ifndef LASER_DETECTION_CV_H
-#define LASER_DETECTION_CV_H
+#ifndef DYN_IMAGE_SEGMENTATION_H
+#define DYN_IMAGE_SEGMENTATION_H
 
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -18,7 +18,7 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <dynamic_reconfigure/server.h>
-#include <laser_detection/DynConfigConfig.h>
+#include <laser_detection/ColorParamsConfig.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
@@ -50,7 +50,7 @@ using namespace pcl;
 using namespace cv;
 using namespace std;
 
-class GreenDetectionCv
+class DynImageSegmentation
 {
     private:
 	    static bool activateGuiBool;
@@ -71,7 +71,7 @@ class GreenDetectionCv
 	    Publisher* pub;
 
     public:
-	    GreenDetectionCv();
+	    DynImageSegmentation();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
         //void filterByColor();
         //void drawBoundingBox();
@@ -90,7 +90,7 @@ class GreenDetectionCv
         void setBlueMaxInt(int blueMaxInt);
         int getBlueMaxInt();
 	    Publisher* getPublisher();
-	    ~GreenDetectionCv();
+	    ~DynImageSegmentation();
 
 };
 

@@ -48,22 +48,23 @@ using namespace cv;
 using namespace pcl;
 using namespace std;
 
-class GreenPart2
+class DynCloudSegmentation
 {
     private:
         sensor_msgs::ImageConstPtr image;
         PointCloud<PointXYZRGB>::Ptr cloud;
         Publisher* pub;
+        bool readyBool;
 
     public:
-        GreenPart2();
+        DynCloudSegmentation();
         void imageCallback(const sensor_msgs::ImageConstPtr& image);
         void pointcloudCallback(PointCloud<PointXYZRGB>::Ptr cloud);
         void copyColorToCloud();
         PointCloud<PointXYZRGB>::Ptr euclideanClusterExtraction(PointCloud<PointXYZRGB>::Ptr cloud);
         void conditionalEuclideanClustering(PointCloud<PointXYZRGB>::Ptr cloud);
         Publisher* getPublisher();
-        ~GreenPart2();
+        ~DynCloudSegmentation();
 };
 
 #endif /* GREEN_PART2_H */

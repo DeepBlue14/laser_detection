@@ -1,0 +1,12 @@
+<!-- -*- xml -*- -->
+<launch>
+    <node name="ColorSegmentation_main"
+          pkg="laser_detection"
+          type="ColorSegmentation_main"
+          required="true"
+          output="screen" />
+    <node name="DynCloudSegmentation_main"
+          pkg="laser_detection"
+          type="GreenPart2_main"
+          required="true"
+          output="screen" />

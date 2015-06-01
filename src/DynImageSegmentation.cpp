@@ -1,22 +1,22 @@
-#include "GreenDetectionCv.h"
+#include "DynImageSegmentation.h"
 
 
-bool GreenDetectionCv::activateGuiBool = false;
-int GreenDetectionCv::redMinInt = 0;
-int GreenDetectionCv::greenMinInt = 0;
-int GreenDetectionCv::blueMinInt = 0;
-int GreenDetectionCv::redMaxInt = 0;
-int GreenDetectionCv::greenMaxInt = 0;
-int GreenDetectionCv::blueMaxInt = 0;
+bool DynImageSegmentation::activateGuiBool = false;
+int DynImageSegmentation::redMinInt = 0;
+int DynImageSegmentation::greenMinInt = 0;
+int DynImageSegmentation::blueMinInt = 0;
+int DynImageSegmentation::redMaxInt = 0;
+int DynImageSegmentation::greenMaxInt = 0;
+int DynImageSegmentation::blueMaxInt = 0;
 
 
-GreenDetectionCv::GreenDetectionCv()
+DynImageSegmentation::DynImageSegmentation()
 {
     pub = new Publisher();
 }
 
 
-void GreenDetectionCv::callback(const sensor_msgs::ImageConstPtr& input)
+void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
 {
     //initialize variables
     minX = 1000000;
@@ -135,97 +135,97 @@ void GreenDetectionCv::callback(const sensor_msgs::ImageConstPtr& input)
 }
 
 
-void GreenDetectionCv::setActivateGuiBool(bool activateGuiBool)
+void DynImageSegmentation::setActivateGuiBool(bool activateGuiBool)
 {
     this->activateGuiBool = activateGuiBool;
 }
 
 
-bool GreenDetectionCv::getActivateGuiBool()
+bool DynImageSegmentation::getActivateGuiBool()
 {
     return activateGuiBool;
 }
 
 
-void GreenDetectionCv::setRedMinInt(int redMinInt)
+void DynImageSegmentation::setRedMinInt(int redMinInt)
 {
     this->redMinInt = redMinInt;
 }
 
 
-int GreenDetectionCv::getRedMinInt()
+int DynImageSegmentation::getRedMinInt()
 {
     return redMinInt;
 }
 
 
-void GreenDetectionCv::setGreenMinInt(int greenMinInt)
+void DynImageSegmentation::setGreenMinInt(int greenMinInt)
 {
     this->greenMinInt = greenMinInt;
 }
 
 
-int GreenDetectionCv::getGreenMinInt()
+int DynImageSegmentation::getGreenMinInt()
 {
     return greenMinInt;
 }
 
 
-void GreenDetectionCv::setBlueMinInt(int blueMinInt)
+void DynImageSegmentation::setBlueMinInt(int blueMinInt)
 {
     this->blueMinInt = blueMinInt;
 }
 
 
-int GreenDetectionCv::getBlueMinInt()
+int DynImageSegmentation::getBlueMinInt()
 {
     return blueMinInt;
 }
 
 
-void GreenDetectionCv::setRedMaxInt(int redMaxInt)
+void DynImageSegmentation::setRedMaxInt(int redMaxInt)
 {
     this->redMaxInt = redMaxInt;
 }
 
 
-int GreenDetectionCv::getRedMaxInt()
+int DynImageSegmentation::getRedMaxInt()
 {
     return redMaxInt;
 }
 
 
-void GreenDetectionCv::setGreenMaxInt(int greenMaxInt)
+void DynImageSegmentation::setGreenMaxInt(int greenMaxInt)
 {
     this->greenMaxInt = greenMaxInt;
 }
 
 
-int GreenDetectionCv::getGreenMaxInt()
+int DynImageSegmentation::getGreenMaxInt()
 {
     return greenMaxInt;
 }
 
 
-void GreenDetectionCv::setBlueMaxInt(int blueMaxInt)
+void DynImageSegmentation::setBlueMaxInt(int blueMaxInt)
 {
     this->blueMaxInt = blueMaxInt;
 }
 
 
-int GreenDetectionCv::getBlueMaxInt()
+int DynImageSegmentation::getBlueMaxInt()
 {
     return blueMaxInt;
 }
 
 
-Publisher* GreenDetectionCv::getPublisher()
+Publisher* DynImageSegmentation::getPublisher()
 {
     return pub;
 }
 
 
-GreenDetectionCv::~GreenDetectionCv()
+DynImageSegmentation::~DynImageSegmentation()
 {
     ;
 }

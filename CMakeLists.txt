@@ -44,7 +44,7 @@ find_package(catkin REQUIRED COMPONENTS
 ##     find_package(catkin REQUIRED COMPONENTS ...)
 
 generate_dynamic_reconfigure_options(
-  cfg/DynConfig.cfg
+    cfg/ColorParams.cfg
   #...
 )
 
@@ -176,23 +176,18 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(GreenDetectionPcl_main src/GreenDetectionPcl_main.cpp
-	                			      src/GreenDetectionPcl.cpp)
-target_link_libraries(GreenDetectionPcl_main ${catkin_LIBRARIES})
-target_link_libraries(GreenDetectionPcl_main ${OpenCV_LIBRARIES})
-add_dependencies(GreenDetectionPcl_main ${laser_detection}_gencfg)
+add_executable(DynImageSegmentation_main src/DynImageSegmentation_main.cpp
+                                         src/DynImageSegmentation.cpp)
+target_link_libraries(DynImageSegmentation_main ${catkin_LIBRARIES})
+target_link_libraries(DynImageSegmentation_main ${OpenCV_LIBRARIES})
+add_dependencies(DynImageSegmentation_main ${laser_detection}_gencfg)
 
 
 
-add_executable(GreenDetectionCv_main src/GreenDetectionCv_main.cpp
-                                     src/GreenDetectionCv.cpp)
-target_link_libraries(GreenDetectionCv_main ${catkin_LIBRARIES})
-target_link_libraries(GreenDetectionCv_main ${OpenCV_LIBRARIES})
-add_dependencies(GreenDetectionCv_main ${laser_detection}_gencfg)
-    
+add_executable(DynCloudSegmentation_main src/DynCloudSegmentation_main.cpp
+                                         src/DynCloudSegmentation.cpp)
+target_link_libraries(DynCloudSegmentation_main ${catkin_LIBRARIES})
+target_link_libraries(DynCloudSegmentation_main ${OpenCV_LIBRARIES})
+add_dependencies(DynCloudSegmentation_main ${laser_detection}_gencfg)
+   
 
-
-add_executable(GreenPart2_main src/GreenPart2_main.cpp
-                               src/GreenPart2.cpp)
-target_link_libraries(GreenPart2_main ${catkin_LIBRARIES})
-target_link_libraries(GreenPart2_main ${OpenCV_Libraries})

@@ -1,27 +1,34 @@
-#include "GreenPart2.h"
+#include "DynCloudSegmentation.h"
 
 
-GreenPart2::GreenPart2()
+DynCloudSegmentation::DynCloudSegmentation()
 {
     pub = new Publisher();
+    readyBool = false;
 }
 
 
-void GreenPart2::imageCallback(const sensor_msgs::ImageConstPtr& image)
+void DynCloudSegmentation::imageCallback(const sensor_msgs::ImageConstPtr& image)
 {
     this->image = image;
+    readyBool = true;
 }
 
 
-void GreenPart2::pointcloudCallback(PointCloud<PointXYZRGB>::Ptr cloud)
+void DynCloudSegmentation::pointcloudCallback(PointCloud<PointXYZRGB>::Ptr cloud)
 {
     this->cloud = cloud;
 
-    copyColorToCloud();
+    //makesure that the image has been initialized; without this check
+    //there would be a seg fault.
+    if(readyBool == true)
+    {
+        copyColorToCloud();
+    }
 }
 
 
-void GreenPart2::copyColorToCloud()
+void DynCloudSegmentation::copyColorToCloud()
 {
     cv_bridge::CvImagePtr cv_ptr;
     cv::Mat cvImage;
@@ -83,7 +90,7 @@ void GreenPart2::copyColorToCloud()
 }
 
 
-PointCloud<PointXYZRGB>::Ptr GreenPart2::euclideanClusterExtraction(PointCloud<PointXYZRGB>::Ptr cloud)
+PointCloud<PointXYZRGB>::Ptr DynCloudSegmentation::euclideanClusterExtraction(PointCloud<PointXYZRGB>::Ptr cloud)
 {
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_f (new pcl::PointCloud<pcl::PointXYZRGB>);
 
@@ -170,19 +177,19 @@ PointCloud<PointXYZRGB>::Ptr GreenPart2::euclideanClusterExtraction(PointCloud<P
 }
 
 
-void GreenPart2::conditionalEuclideanClustering(PointCloud<PointXYZRGB>::Ptr cloud)
+void DynCloudSegmentation::conditionalEuclideanClustering(PointCloud<PointXYZRGB>::Ptr cloud)
 {
     ;
 }
 
 
-Publisher* GreenPart2::getPublisher()
+Publisher* DynCloudSegmentation::getPublisher()
 {
     return pub;
 }
 
 
-GreenPart2::~GreenPart2()
+DynCloudSegmentation::~DynCloudSegmentation()
 {
     ;
 }
