@@ -9,8 +9,8 @@
  * Created May 26, 2015 at 6:00pm
  */
 
-#ifndef DYN_IMAGE_SEGMENTATION_H
-#define DYN_IMAGE_SEGMENTATION_H
+#ifndef TEST_H
+#define TEST_H
 
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -50,7 +50,7 @@ using namespace pcl;
 using namespace cv;
 using namespace std;
 
-class DynImageSegmentation
+class Test
 {
     private:
 	    static bool activateGuiBool;
@@ -71,7 +71,7 @@ class DynImageSegmentation
 	    Publisher* pub;
 
     public:
-	    DynImageSegmentation();
+	    Test();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
         //void filterByColor();
         //void drawBoundingBox();
@@ -90,8 +90,8 @@ class DynImageSegmentation
         void setBlueMaxInt(int blueMaxInt);
         int getBlueMaxInt();
 	    Publisher* getPublisher();
-	    ~DynImageSegmentation();
+	    ~Test();
 
 };
 
-#endif /* LASER_DETECTION_CV_H */
+#endif /* TEST_H */

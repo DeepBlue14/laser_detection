@@ -1,8 +1,18 @@
+/*
+ * File: DynImageSegmentation_main.cpp
+ * Author: James Kuczynski
+ * Email: jkuczyns@cs.uml.edu
+ * File Description: 
+ *
+ * 
+ */
+ 
+ 
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <dynamic_reconfigure/server.h>
-#include <laser_detection/ColorParamsConfig.h>
+#include <laser_detection/ImageParamsConfig.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/Image.h>
@@ -22,7 +32,7 @@ using namespace std;
 DynImageSegmentation dynImageSeg;
 
 
-void drCallback(laser_detection::ColorParamsConfig& config, uint32_t level)
+void drCallback(laser_detection::ImageParamsConfig& config, uint32_t level)
 {
     if(config.Activate == true)
     {
@@ -58,8 +68,8 @@ int main(int argc, char **argv)
 
     *mainsPub = nh.advertise<sensor_msgs::Image>("/scooter/camera/image", 10);
 
-    dynamic_reconfigure::Server<laser_detection::ColorParamsConfig> server;
-    dynamic_reconfigure::Server<laser_detection::ColorParamsConfig>::CallbackType f;
+    dynamic_reconfigure::Server<laser_detection::ImageParamsConfig> server;
+    dynamic_reconfigure::Server<laser_detection::ImageParamsConfig>::CallbackType f;
     f = boost::bind(&drCallback, _1, _2);
     server.setCallback(f);
 

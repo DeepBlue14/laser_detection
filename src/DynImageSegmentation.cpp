@@ -108,11 +108,18 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
         }
     }
 /*
- * http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/
+ //http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/
+    //- - - - - - -
     Mat image_gray;
     cvtColor(cvImage, image_gray, CV_BGR2GRAY);
+
+    /// Reduce the noise
+    GaussianBlur(image_gray, image_gray, Size(9, 9), 2, 2);
+
     vector<Vec3f> circles;
-    HoughCircles(image_gray, circles, CV_HOUGH_GRADIENT, 5, image_gray.rows/6, 200, 20, 10, 40);
+
+    /// Apply the Hough Transform to find the circle(s)
+    HoughCircles(image_gray, circles, CV_HOUGH_GRADIENT, 5, image_gray.rows/6, 200, 10, 1, 10);
     ROS_INFO("Number of circles detected:%lu", circles.size() );
     for(size_t i = 0; i < circles.size(); i++)
     {
@@ -125,9 +132,9 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
         // circle outline
         circle(cvImage, center, radius, Scalar(0, 0, 255), 1);
     }
-
-    //- - - - - - -
 */
+    //- - - - - - -
+
 
     cv_ptr->image = cvImage;
 

@@ -44,7 +44,8 @@ find_package(catkin REQUIRED COMPONENTS
 ##     find_package(catkin REQUIRED COMPONENTS ...)
 
 generate_dynamic_reconfigure_options(
-    cfg/ColorParams.cfg
+    cfg/ImageParams.cfg
+    cfg/CloudParams.cfg
   #...
 )
 
@@ -190,4 +191,7 @@ target_link_libraries(DynCloudSegmentation_main ${catkin_LIBRARIES})
 target_link_libraries(DynCloudSegmentation_main ${OpenCV_LIBRARIES})
 add_dependencies(DynCloudSegmentation_main ${laser_detection}_gencfg)
    
-
+add_executable(Test_main src/Test_main.cpp)
+    #                         src/Test.cpp)
+target_link_libraries(Test_main ${catkin_LIBRARIES})
+target_link_libraries(Test_main ${OpenCV_LIBRARIES})

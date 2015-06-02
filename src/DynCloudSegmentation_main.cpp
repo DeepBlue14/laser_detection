@@ -1,9 +1,19 @@
+/*
+ * File: DynCloudSegmentation_main.cpp
+ * Author: James Kuczynski
+ * Email: jkuczyns@cs.uml.edu
+ * File Description: 
+ *
+ * 
+ */
+
+
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <dynamic_reconfigure/server.h>
-//dyn config
+#include <laser_detection/CloudParamsConfig.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_cloud.h>
@@ -19,6 +29,30 @@ using namespace pcl;
 using namespace std;
 
 DynCloudSegmentation dynCloudSeg;
+
+
+void drCallback(laser_detection::CloudParamsConfig& config, uint32_t level)
+{
+    if(config.Activate == true)
+    {
+        dynCloudSeg.setActivateGuiBool(config.Activate);
+        dynCloudSeg.setInvalid_r(config.Invalid_r);
+        dynCloudSeg.setInvalid_g(config.Invalid_g);
+        dynCloudSeg.setInvalid_b(config.Invalid_b);
+        dynCloudSeg.setInvalid_x(config.Invalid_x);
+        dynCloudSeg.setInvalid_y(config.Invalid_y);
+        dynCloudSeg.setInvalid_z(config.Invalid_z);
+        dynCloudSeg.setLeafSize(config.Leaf_Size);
+        dynCloudSeg.setMaxIters(config.Max_Iters);
+        dynCloudSeg.setDistThreshold(config.Dist_Thresh);
+        dynCloudSeg.setClusterTolerance(config.Cluster_Tol);
+        dynCloudSeg.setMinClusterSize(config.Min_clus_pts);
+        dynCloudSeg.setMaxClusterSize(config.Max_clus_pts);
+    }
+
+
+}
+
 
 int main(int argc, char **argv)
 {
@@ -49,6 +83,12 @@ int main(int argc, char **argv)
 
     //*mainsImagePub = nh.advertise<sensor_msgs::Image>("/scooter/camera/image", 1);
     *mainsPointcloudPub = nh.advertise<PointCloud<PointXYZRGB> >("/scooter/depth_registered/points", 1);
+    
+    dynamic_reconfigure::Server<laser_detection::CloudParamsConfig> server;
+    dynamic_reconfigure::Server<laser_detection::CloudParamsConfig>::CallbackType f;
+    f = boost::bind(&drCallback, _1, _2);
+    server.setCallback(f);
+
 
     spin();
 
