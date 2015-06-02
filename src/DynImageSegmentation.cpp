@@ -108,6 +108,7 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
         }
     }
 /*
+ // Circle detection
  //http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/
     //- - - - - - -
     Mat image_gray;
@@ -135,10 +136,18 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
 */
     //- - - - - - -
 
+    //- - - - - - - -
+
 
     cv_ptr->image = cvImage;
 
     pub->publish(cv_ptr->toImageMsg() );
+}
+
+
+Mat DynImageSegmentation::filterByMotion(Mat cvImage)
+{
+    ;
 }
 
 
