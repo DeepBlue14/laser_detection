@@ -44,6 +44,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 #include <assert.h>
 
 using namespace ros;
@@ -68,6 +69,9 @@ class DynImageSegmentation
         int minY;
         int maxX;
         int maxY;
+        
+        bool nextIterBool;
+        Mat prevImage;
 
 	    Publisher* pub;
 
@@ -75,7 +79,8 @@ class DynImageSegmentation
 	    DynImageSegmentation();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
         //void filterByColor();
-        Mat filterByMotion(Mat cvImage);
+        Mat filterByMotion(Mat nextImage);
+        void searchForMovement(Mat thresholdImage, Mat& cameraFeed);
         //void drawBoundingBox();
 	    void setActivateGuiBool(bool activateGuiBool);
 	    bool getActivateGuiBool();

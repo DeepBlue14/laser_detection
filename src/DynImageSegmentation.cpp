@@ -48,6 +48,9 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
     }
     
     cvImage = cv_ptr->image;
+    cv::imshow("Initial Image", cvImage);
+    cv::waitKey(3);
+
 
     for(size_t y = 0; y < cvImage.rows; y++)
     {
@@ -135,20 +138,110 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
     }
 */
     //- - - - - - -
-
+    Mat motionMat = cvImage;
+    if(nextIterBool == true && getActivateGuiBool() == true)
+    {
+        motionMat = filterByMotion(cvImage);
+    }
+    else
+    {
+        motionMat = cvImage;
+        
+        nextIterBool = true;
+    }
+    Mat t = cvImage;
     //- - - - - - - -
+    prevImage = cvImage;
 
-
-    cv_ptr->image = cvImage;
+    cv_ptr->image = motionMat;
 
     pub->publish(cv_ptr->toImageMsg() );
 }
 
 
-Mat DynImageSegmentation::filterByMotion(Mat cvImage)
+Mat DynImageSegmentation::filterByMotion(Mat nextImage)
 {
-    ;
+    //cv::imshow("Next Image", nextImage);
+    //cv::waitKey(3);
+    Mat grayImage1;
+    Mat grayImage2;
+    Mat differenceImage;
+    Mat thresholdImage;
+    const static int SENSITIVITY_VALUE = 20;
+    const static int BLUR_SIZE = 10;
+
+    cv::cvtColor(prevImage, grayImage1, COLOR_BGR2GRAY);
+    cv::cvtColor(nextImage, grayImage2, COLOR_BGR2GRAY);
+    cv::imshow("Next Image", nextImage);
+    cv::waitKey(3);
+    cv::absdiff(grayImage1, grayImage2, differenceImage);
+    cv::threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+
+    cv::imshow("Difference Image", differenceImage);
+    cv::waitKey(3);
+    cv::imshow("Threshold Image", thresholdImage);
+    cv::waitKey(3);
+
+    cv::blur(thresholdImage, thresholdImage, cv::Size(BLUR_SIZE, BLUR_SIZE) );
+    cv::threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+
+    imshow("Final Threshold Image", thresholdImage);
+    cv::waitKey(3);
+
+    
+    searchForMovement(thresholdImage, nextImage);
+    
+    
+    
+    return thresholdImage;
 }
+
+
+void DynImageSegmentation::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
+{
+    bool objectDetected = false;
+    Mat temp;
+    thresholdImage.copyTo(temp);
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    int theObject[2] = {0,0};
+    Rect objectBoundingRectangle = Rect(0,0,0,0);
+
+    findContours(temp,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE );
+
+    if(contours.size() > 0)
+        objectDetected = true;
+
+    if(objectDetected)
+    {
+        //ROS_INFO("Found target");
+        vector<vector<Point> > largestContourVec;
+        largestContourVec.push_back(contours.at(contours.size() - 1));
+
+        objectBoundingRectangle = boundingRect(largestContourVec.at(0));
+        int xpos = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
+        int ypos = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
+
+        theObject[0] = xpos, theObject[1] = ypos;
+    }
+
+    int x = theObject[0];
+    int y = theObject[1];
+
+    cv::imshow("result", cameraFeed);
+    cv::waitKey(3);
+
+	circle(cameraFeed,Point(x,y),20,Scalar(0,255,0),2);
+	/*line(cameraFeed,Point(x,y),Point(x,y-25),Scalar(0,255,0),2);
+	line(cameraFeed,Point(x,y),Point(x,y+25),Scalar(0,255,0),2);
+	line(cameraFeed,Point(x,y),Point(x-25,y),Scalar(0,255,0),2);
+	line(cameraFeed,Point(x,y),Point(x+25,y),Scalar(0,255,0),2);
+    
+	//putText(cameraFeed,"Tracking object at (" + intToString(x)+","+intToString(y)+")",Point(x,y),1,1,Scalar(255,0,0),2);
+    putText(cameraFeed, "tracking object", Point(x,y),1,1,Scalar(255,0,0),2);
+    */
+}
+        
 
 
 void DynImageSegmentation::setActivateGuiBool(bool activateGuiBool)
