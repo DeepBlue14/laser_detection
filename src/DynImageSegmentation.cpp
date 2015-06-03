@@ -8,6 +8,8 @@ int DynImageSegmentation::blueMinInt = 0;
 int DynImageSegmentation::redMaxInt = 0;
 int DynImageSegmentation::greenMaxInt = 0;
 int DynImageSegmentation::blueMaxInt = 0;
+int DynImageSegmentation::sensitivityInt = 0;
+int DynImageSegmentation::blurInt = 0;
 
 
 DynImageSegmentation::DynImageSegmentation()
@@ -141,6 +143,7 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
     Mat motionMat = cvImage;
     if(nextIterBool == true && getActivateGuiBool() == true)
     {
+        //cout << "Activating motion detection" << endl;
         motionMat = filterByMotion(cvImage);
     }
     else
@@ -167,24 +170,25 @@ Mat DynImageSegmentation::filterByMotion(Mat nextImage)
     Mat grayImage2;
     Mat differenceImage;
     Mat thresholdImage;
-    const static int SENSITIVITY_VALUE = 20;
-    const static int BLUR_SIZE = 10;
+    //const static int SENSITIVITY_VALUE = 25;
+    //const static int BLUR_SIZE = 10;
 
     cv::cvtColor(prevImage, grayImage1, COLOR_BGR2GRAY);
     cv::cvtColor(nextImage, grayImage2, COLOR_BGR2GRAY);
     cv::imshow("Next Image", nextImage);
     cv::waitKey(3);
     cv::absdiff(grayImage1, grayImage2, differenceImage);
-    cv::threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+    cv::threshold(differenceImage, thresholdImage, getSensitivityInt()/*SENSITIVITY_VALUE*/, 255, THRESH_BINARY);
 
     cv::imshow("Difference Image", differenceImage);
     cv::waitKey(3);
     cv::imshow("Threshold Image", thresholdImage);
     cv::waitKey(3);
 
-    cv::blur(thresholdImage, thresholdImage, cv::Size(BLUR_SIZE, BLUR_SIZE) );
-    cv::threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+    cv::blur(thresholdImage, thresholdImage, cv::Size(getBlurInt()/*BLUR_SIZE*/, getBlurInt()/*BLUR_SIZE*/) );
+    cv::threshold(thresholdImage, thresholdImage, getSensitivityInt()/*SENSITIVITY_VALUE*/, 255, THRESH_BINARY);
 
+    //use this--the "final thresholdImage"
     imshow("Final Threshold Image", thresholdImage);
     cv::waitKey(3);
 
@@ -210,13 +214,16 @@ void DynImageSegmentation::searchForMovement(Mat thresholdImage, Mat& cameraFeed
     findContours(temp,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE );
 
     if(contours.size() > 0)
+    {
+        ROS_INFO("# of shapes found: %lu", contours.size() );
         objectDetected = true;
-
+    }
+    
     if(objectDetected)
     {
         //ROS_INFO("Found target");
         vector<vector<Point> > largestContourVec;
-        largestContourVec.push_back(contours.at(contours.size() - 1));
+        largestContourVec.push_back(contours.at(contours.size() - 1)); //???
 
         objectBoundingRectangle = boundingRect(largestContourVec.at(0));
         int xpos = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
@@ -231,7 +238,7 @@ void DynImageSegmentation::searchForMovement(Mat thresholdImage, Mat& cameraFeed
     cv::imshow("result", cameraFeed);
     cv::waitKey(3);
 
-	circle(cameraFeed,Point(x,y),20,Scalar(0,255,0),2);
+	//circle(cameraFeed,Point(x,y),20,Scalar(0,255,0),2);
 	/*line(cameraFeed,Point(x,y),Point(x,y-25),Scalar(0,255,0),2);
 	line(cameraFeed,Point(x,y),Point(x,y+25),Scalar(0,255,0),2);
 	line(cameraFeed,Point(x,y),Point(x-25,y),Scalar(0,255,0),2);
@@ -325,6 +332,30 @@ void DynImageSegmentation::setBlueMaxInt(int blueMaxInt)
 int DynImageSegmentation::getBlueMaxInt()
 {
     return blueMaxInt;
+}
+
+
+void DynImageSegmentation::setSensitivityInt(int sensitivityInt)
+{
+    this->sensitivityInt = sensitivityInt;
+}
+
+
+int DynImageSegmentation::getSensitivityInt()
+{
+    return sensitivityInt;
+}
+
+
+void DynImageSegmentation::setBlurInt(int blurInt)
+{
+    this->blurInt = blurInt;
+}
+
+
+int DynImageSegmentation::getBlurInt()
+{
+    return blurInt;
 }
 
 

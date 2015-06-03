@@ -43,6 +43,9 @@ void drCallback(laser_detection::ImageParamsConfig& config, uint32_t level)
         dynImageSeg.setRedMaxInt(config.Red_Max);
         dynImageSeg.setGreenMaxInt(config.Green_Max);
         dynImageSeg.setBlueMaxInt(config.Blue_Max);
+
+        dynImageSeg.setSensitivityInt(config.Sensitivity);
+        dynImageSeg.setBlurInt(config.Blur);
     }
     else
     {

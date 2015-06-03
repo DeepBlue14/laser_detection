@@ -4,7 +4,6 @@
  * Email: jkuczyns@cs.uml.edu
  * File Description: 
  *
- * Reference: http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/bounding_rects_circles/bounding_rects_circles.html
  *
  * Created May 26, 2015 at 6:00pm
  */
@@ -63,6 +62,9 @@ class DynImageSegmentation
         static int greenMaxInt;
         static int blueMaxInt;
 
+        static int sensitivityInt;
+        static int blurInt;
+
         vector<int> validXVec;
         vector<int> validYVec;
         int minX;
@@ -96,6 +98,10 @@ class DynImageSegmentation
         int getGreenMaxInt();
         void setBlueMaxInt(int blueMaxInt);
         int getBlueMaxInt();
+        void setSensitivityInt(int sensitivityInt);
+        int getSensitivityInt();
+        void setBlurInt(int blurInt);
+        int getBlurInt();
 	    Publisher* getPublisher();
 	    ~DynImageSegmentation();
 
