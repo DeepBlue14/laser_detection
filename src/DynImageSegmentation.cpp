@@ -175,8 +175,6 @@ Mat DynImageSegmentation::filterByMotion(Mat nextImage)
 
     cv::cvtColor(prevImage, grayImage1, COLOR_BGR2GRAY);
     cv::cvtColor(nextImage, grayImage2, COLOR_BGR2GRAY);
-    cv::imshow("Next Image", nextImage);
-    cv::waitKey(3);
     cv::absdiff(grayImage1, grayImage2, differenceImage);
     cv::threshold(differenceImage, thresholdImage, getSensitivityInt()/*SENSITIVITY_VALUE*/, 255, THRESH_BINARY);
 
@@ -235,18 +233,26 @@ void DynImageSegmentation::searchForMovement(Mat thresholdImage, Mat& cameraFeed
     int x = theObject[0];
     int y = theObject[1];
 
-    cv::imshow("result", cameraFeed);
-    cv::waitKey(3);
+    //cv::imshow("result", cameraFeed);
+    //cv::waitKey(3);
 
-	//circle(cameraFeed,Point(x,y),20,Scalar(0,255,0),2);
-	/*line(cameraFeed,Point(x,y),Point(x,y-25),Scalar(0,255,0),2);
-	line(cameraFeed,Point(x,y),Point(x,y+25),Scalar(0,255,0),2);
-	line(cameraFeed,Point(x,y),Point(x-25,y),Scalar(0,255,0),2);
-	line(cameraFeed,Point(x,y),Point(x+25,y),Scalar(0,255,0),2);
+    Mat finalImage;
+    cameraFeed.copyTo(finalImage);
+   
+    //cv::imshow("Final Image", finalImage);
+    //cv::waitKey(3);
+
+	circle(finalImage, Point(x,y), 20, Scalar(0,255,0),2);
+	line(finalImage, Point(x,y), Point(x,y-25), Scalar(0,255,0), 2);
+	line(finalImage, Point(x,y), Point(x,y+25), Scalar(0,255,0), 2);
+	line(finalImage, Point(x,y), Point(x-25,y), Scalar(0,255,0), 2);
+	line(finalImage, Point(x,y), Point(x+25,y), Scalar(0,255,0), 2);
     
 	//putText(cameraFeed,"Tracking object at (" + intToString(x)+","+intToString(y)+")",Point(x,y),1,1,Scalar(255,0,0),2);
-    putText(cameraFeed, "tracking object", Point(x,y),1,1,Scalar(255,0,0),2);
-    */
+    putText(finalImage, "tracking object", Point(x,y),1,1,Scalar(255,0,0),2);
+    
+    cv::imshow("Final Image", finalImage);
+    cv::waitKey(3);
 }
         
 
