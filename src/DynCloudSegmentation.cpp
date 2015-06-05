@@ -26,7 +26,13 @@ DynCloudSegmentation::DynCloudSegmentation()
 void DynCloudSegmentation::imageCallback(const sensor_msgs::ImageConstPtr& image)
 {
     this->image = image;
-    readyBool = true;
+    readyBool = true; // ???Move this to point callback???
+}
+
+
+void DynCloudSegmentation::pointCallback(const geometry_msgs::PointConstPtr& point)
+{
+    this->point = point;
 }
 
 
@@ -57,18 +63,26 @@ void DynCloudSegmentation::copyColorToCloud()
         ROS_ERROR("cv_bridge exception: %s", e.what() );
     }
 
-    cvImage = cv_ptr->image;
+    m_image = cvImage = cv_ptr->image;
 
 
     int pclCount = 0;
     for(size_t y = 0; y < cvImage.rows; y++)
-    {//ROS_INFO("Beginning outer loop");
+    {
         for(size_t x = 0; x < cvImage.cols; x++)
         {
             Vec3b color = cvImage.at<Vec3b>(Point(x,y));
             cloud->points[pclCount].r = color.val[2];
             cloud->points[pclCount].g = color.val[1];
             cloud->points[pclCount].b = color.val[0];
+            
+            if(y == point->y && x == point->x) //???
+            {
+                realWorldCoorPoint.x = cloud->points[pclCount].x;
+                realWorldCoorPoint.y = cloud->points[pclCount].y;
+                realWorldCoorPoint.z = cloud->points[pclCount].z;
+            }
+            
             
             // Set xyz fields of blacked out points 
             
@@ -121,10 +135,9 @@ PointCloud<PointXYZRGB>::Ptr DynCloudSegmentation::euclideanClusterExtraction(Po
     pcl::VoxelGrid<pcl::PointXYZRGB> vg;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZRGB>);
     vg.setInputCloud (cloud);
-    //vg.setLeafSize (0.01f, 0.01f, 0.01f);
     vg.setLeafSize (getLeafSize(), getLeafSize(), getLeafSize() );
     vg.filter (*cloud_filtered);
-    std::cout << "PointCloud after filtering has: " << cloud_filtered->points.size ()  << " data points." << std::endl; //*
+    //std::cout << "PointCloud after filtering has: " << cloud_filtered->points.size ()  << " data points." << std::endl; //*
 
     // Create the segmentation object for the planar model and set all the parameters
     pcl::SACSegmentation<pcl::PointXYZRGB> seg;
@@ -135,9 +148,7 @@ PointCloud<PointXYZRGB>::Ptr DynCloudSegmentation::euclideanClusterExtraction(Po
     seg.setOptimizeCoefficients (true);
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);
-    //seg.setMaxIterations (100);
     seg.setMaxIterations(getMaxIters() );
-    //seg.setDistanceThreshold (0.02);
     seg.setDistanceThreshold(getDistThreshold() );
 
     int i=0, nr_points = (int) cloud_filtered->points.size ();
@@ -197,39 +208,73 @@ PointCloud<PointXYZRGB>::Ptr DynCloudSegmentation::euclideanClusterExtraction(Po
         float sumX = 0.0;
         float sumY = 0.0;
         float sumZ = 0.0;
+        float maxX = 0.0;
+        float minX = 100.0;
+        float maxY = 0.0;
+        float minY = 100.0;
         int count = 0;
 
-        //pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZRGB>);//old
         for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
         {
             cloud_cluster->points[*pit] = cloud_filtered->points[*pit];
-            //cloud_cluster->points.push_back (cloud_filtered->points[*pit]);
+            
             cloud_cluster->points[*pit].r = 255;
             cloud_cluster->points[*pit].g = 0;
             cloud_cluster->points[*pit].b = 0;
-            //cout << "updated color" << *pit << endl;
             
             sumX += cloud_cluster->points[*pit].x;
             sumY += cloud_cluster->points[*pit].y;
             sumZ += cloud_cluster->points[*pit].z;
+
+            if(cloud_cluster->points[*pit].x > maxX)
+            {
+                maxX = cloud_cluster->points[*pit].x;
+            }
+
+            if(cloud_cluster->points[*pit].x < minX)
+            {
+                minX = cloud_cluster->points[*pit].x;
+            }
+            
+            if(cloud_cluster->points[*pit].y > maxY)
+            {
+                maxY = cloud_cluster->points[*pit].y;
+            }
+
+            if(cloud_cluster->points[*pit].y < minY)
+            {
+                minY = cloud_cluster->points[*pit].y;
+            }
+            
+
+
             count++;
         }
+        
+        if(realWorldCoorPoint.x > minX && realWorldCoorPoint.x < maxX && realWorldCoorPoint.y > minY && realWorldCoorPoint.y < maxY)
+        {
+            for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
+            {
+                cloud_cluster->points[*pit].r = 0;
+                cloud_cluster->points[*pit].g = 100;
+                cloud_cluster->points[*pit].b = 100;
+            }
+        }
+        
 
         geometry_msgs::Point point;
         point.x = sumX / count;
         point.y = sumY / count;
         point.z = sumZ / count;
         clusterCenterVec.push_back(point);
-        ROS_INFO("Point center: x=%f y=%f z=%f", point.x, point.y, point.z);
+        //ROS_INFO("Object center: x=%f y=%f z=%f", point.x, point.y, point.z);
 
     }
     
-    cout << "Number of clusters: " << cluster_indices.size() << endl;
+    //cout << "Number of clusters: " << cluster_indices.size() << endl;
 
 
-    //return cloud_filtered;
     return cloud_cluster;
-    //return cloud;
 }
 
 

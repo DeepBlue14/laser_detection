@@ -61,6 +61,9 @@ class DynCloudSegmentation
 {
     private:
         sensor_msgs::ImageConstPtr image;
+        geometry_msgs::PointConstPtr point;
+        geometry_msgs::Point realWorldCoorPoint;
+        cv::Mat m_image;
         PointCloud<PointXYZRGB>::Ptr cloud;
         Publisher* pub;
         bool readyBool;
@@ -84,6 +87,7 @@ class DynCloudSegmentation
     public:
         DynCloudSegmentation();
         void imageCallback(const sensor_msgs::ImageConstPtr& image);
+        void pointCallback(const geometry_msgs::PointConstPtr& point);
         void pointcloudCallback(PointCloud<PointXYZRGB>::Ptr cloud);
         void copyColorToCloud();
         PointCloud<PointXYZRGB>::Ptr euclideanClusterExtraction(PointCloud<PointXYZRGB>::Ptr cloud);

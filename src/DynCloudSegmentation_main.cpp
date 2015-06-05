@@ -84,6 +84,12 @@ int main(int argc, char **argv)
                                                             &DynCloudSegmentation::imageCallback,
                                                             &dynCloudSeg);
     */
+    
+    Subscriber pointSub = nh.subscribe<geometry_msgs::Point>("/scooter/geometry_msgs/center_point",
+                                                              1,
+                                                              &DynCloudSegmentation::pointCallback,
+                                                              &dynCloudSeg);
+
     Subscriber pointcloudSub = nh.subscribe<PointCloud<PointXYZRGB>::Ptr>("/camera/depth_registered/points",
                                                                       1,
                                                                       &DynCloudSegmentation::pointcloudCallback,

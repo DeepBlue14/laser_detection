@@ -28,8 +28,6 @@ The purpose of this project is to focus on a given object which the laser is poi
 To run individual nodes:
 ```bash
 roslaunch openni2_launch openni2.launch
-rosrun laser_detection ColorSeg_main
-rosrun laser_detection ShapeSeg_main
 rosrun laser_detection MotionSeg_main
 
 rosrun rqt_reconfigure rqt_reconfigure
