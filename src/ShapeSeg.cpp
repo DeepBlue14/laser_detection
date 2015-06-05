@@ -70,8 +70,6 @@ void ShapeSeg::callback(const sensor_msgs::ImageConstPtr& input)
 
 Mat ShapeSeg::filterByMotion(Mat nextImage)
 {
-    //cv::imshow("Next Image", nextImage);
-    //cv::waitKey(3);
     Mat grayImage1;
     Mat grayImage2;
     Mat differenceImage;
@@ -100,11 +98,12 @@ Mat ShapeSeg::filterByMotion(Mat nextImage)
     //searchForMovement(thresholdImage, nextImage);
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    vector<Vec3f> circles;
+   /* vector<Vec3f> circles;
     
     // Apply the Hough Transform to find the circles
-    HoughCircles(thresholdImage, circles, CV_HOUGH_GRADIENT, 1, thresholdImage.rows/8, 200, 100, 0, 0);
-    
+    HoughCircles(thresholdImage, circles, CV_HOUGH_GRADIENT, 100, thresholdImage.rows/16, 200, 50, 5, 200);
+    ROS_INFO("Number of circles detected: %lu", circles.size() );
+     
     for(size_t i = 0; i < circles.size(); i++)
     {
         Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
@@ -115,7 +114,42 @@ Mat ShapeSeg::filterByMotion(Mat nextImage)
         
         // Circles outline
         circle(nextImage, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+    }*/
+
+    vector<vector<Point> > contours;
+    findContours(thresholdImage, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+    ROS_INFO("Number of contours detected: %lu", contours.size() );
+    vector<vector<Point> > squares;
+
+    vector<Point> approx;
+    for(size_t i = 0; i < contours.size(); i++)
+    {
+        approxPolyDP(Mat(contours[i]), approx, arcLength(Mat(contours[i]), true)*0.02, true);
+
+        //cout << "approx: " << approx.size() << endl;
+        if(approx.size() > 3 && approx.size() < 6 && 4 && fabs(contourArea(Mat(approx))) > 1000 && isContourConvex(Mat(approx)) )
+        {
+            double maxCosine = 0;
+            for(size_t k = 2; k < 5; k++)
+            {
+                double cosine = fabs(angle(approx[k%4], approx[k-2], approx[k-1]));
+                maxCosine = MAX(maxCosine, cosine);
+            }
+
+            if(maxCosine < 0.9)
+            {
+                squares.push_back(approx);
+            }
+        }
     }
+
+    for(size_t i = 0; i < squares.size(); i++)
+    {
+        const Point* p = &squares[i][0];
+        int n = (int) squares[i].size();
+        polylines(nextImage, &p, &n, 1, true, Scalar(0, 255, 0), 3, 2, 0);
+    }
+
     
     cv::imshow("Final Shape Image", nextImage);
     cv::waitKey(3);
@@ -123,6 +157,16 @@ Mat ShapeSeg::filterByMotion(Mat nextImage)
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
     return thresholdImage;
+}
+
+
+double ShapeSeg::angle(Point pt1, Point pt2, Point pt0)
+{
+    double dx1 = pt1.x - pt0.x;
+    double dy1 = pt1.y - pt0.y;
+    double dx2 = pt2.x - pt0.x;
+    double dy2 = pt2.y - pt0.y;
+    return (dx1*dx2 + dy1*dy2)/sqrt((dx1*dx1 + dy1*dy1)*(dx2*dx2 + dy2*dy2) + 1e-10);
 }
 
 

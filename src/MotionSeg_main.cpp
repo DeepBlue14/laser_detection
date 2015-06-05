@@ -63,7 +63,7 @@ int main(int argc, char **argv)
                                                         &MotionSeg::callback,
                                                         &motionSeg);
 
-    *mainsPub = nh.advertise<sensor_msgs::Image>("/scooter/rgb/tracked_image", 10);
+    *mainsPub = nh.advertise<geometry_msgs::Point>("/scooter/geometry_msgs/center_point", 10);
 
     dynamic_reconfigure::Server<laser_detection::ImageParamsConfig> server;
     dynamic_reconfigure::Server<laser_detection::ImageParamsConfig>::CallbackType f;

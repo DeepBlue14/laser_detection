@@ -20,6 +20,7 @@
 
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <geometry_msgs/Point.h>
 #include <dynamic_reconfigure/server.h>
 #include <laser_detection/ImageParamsConfig.h>
 
@@ -46,6 +47,7 @@
 #include <stdio.h>
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -59,33 +61,27 @@ class MotionSeg
 {
     private:
 	    static bool activateGuiBool;
-	    
         static int sensitivityInt;
         static int blurInt;
-
-        vector<int> validXVec;
-        vector<int> validYVec;
-        int minX;
-        int minY;
-        int maxX;
-        int maxY;
-        
         bool nextIterBool;
         Mat prevImage;
-
+        geometry_msgs::Point centerPoint;
 	    Publisher* pub;
 
     public:
 	    MotionSeg();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
-        Mat filterByMotion(Mat nextImage);
+        void filterByMotion(Mat nextImage);
         void searchForMovement(Mat thresholdImage, Mat& cameraFeed);
+        float verifyColor(vector<vector<Point> > movingObjectCoors, Point centerPixel);
 	    void setActivateGuiBool(bool activateGuiBool);
 	    bool getActivateGuiBool();
         void setSensitivityInt(int sensitivityInt);
         int getSensitivityInt();
         void setBlurInt(int blurInt);
         int getBlurInt();
+        void setCenterPoint(int x, int y);
+        geometry_msgs::Point getCenterPoint();
 	    Publisher* getPublisher();
 	    ~MotionSeg();
 

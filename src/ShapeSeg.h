@@ -5,6 +5,7 @@
  * File Description: This node subscribes to /camera/rgb/image_rect_color, and
  *                   detects circular objects. (...)
  *
+ * Reference: https://github.com/Itseez/opencv/blob/master/samples/cpp/squares.cpp
  *
  * Created May 26, 2015 at 6:00pm
  */
@@ -35,6 +36,7 @@
 #include <sensor_msgs/image_encodings.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 
@@ -76,6 +78,7 @@ class ShapeSeg
 	    ShapeSeg();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
         Mat filterByMotion(Mat nextImage);
+        static double angle(Point pt1, Point pt2, Point pt0);
         //void searchForMovement(Mat thresholdImage, Mat& cameraFeed);
 	    void setActivateGuiBool(bool activateGuiBool);
 	    bool getActivateGuiBool();

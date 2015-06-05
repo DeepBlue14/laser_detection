@@ -9,23 +9,12 @@ int MotionSeg::blurInt = 0;
 MotionSeg::MotionSeg()
 {
     pub = new Publisher();
+    centerPoint.z = -1;
 }
 
 
 void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
 {
-    //initialize variables
-    minX = 1000000;
-    minY = 1000000;
-    maxX = -100000;
-    maxY = -100000;
-
-    for(size_t i = 0; i < validXVec.size(); i++)
-    {
-        validXVec.pop_back();
-        validYVec.pop_back();
-    }
-
     //http://www.cse.sc.edu/~jokane/teaching/574/notes-images.pdf
     
     //convert to OpenCV type- - - - - - - - - - - - - - - - - -
@@ -46,87 +35,50 @@ void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
     cv::imshow("Initial Image", cvImage);
     cv::waitKey(3);
 
-/*
- // Circle detection
- //http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/
-    //- - - - - - -
-    Mat image_gray;
-    cvtColor(cvImage, image_gray, CV_BGR2GRAY);
-    /// Reduce the noise
-    GaussianBlur(image_gray, image_gray, Size(9, 9), 2, 2);
-    vector<Vec3f> circles;
-    /// Apply the Hough Transform to find the circle(s)
-    HoughCircles(image_gray, circles, CV_HOUGH_GRADIENT, 5, image_gray.rows/6, 200, 10, 1, 10);
-    ROS_INFO("Number of circles detected:%lu", circles.size() );
-    for(size_t i = 0; i < circles.size(); i++)
-    {
-        //ROS_INFO("looping...");
-        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-        int radius = cvRound(circles[i][2]);
-        ROS_INFO("\tAdding circle of radius: %d", radius);
-        // circle center
-        circle(cvImage, center, 3, Scalar(255, 0, 0), -1);
-        // circle outline
-        circle(cvImage, center, radius, Scalar(0, 0, 255), 1);
-    }
-*/
-    //- - - - - - -
-    Mat motionMat = cvImage;
     if(nextIterBool == true && getActivateGuiBool() == true)
     {
-        //cout << "Activating motion detection" << endl;
-        motionMat = filterByMotion(cvImage);
+        filterByMotion(cvImage);
     }
     else
     {
-        motionMat = cvImage;
-        
         nextIterBool = true;
     }
     Mat t = cvImage;
     //- - - - - - - -
     prevImage = cvImage;
 
-    cv_ptr->image = motionMat;
+    cv_ptr->image = cvImage;
 
-    pub->publish(cv_ptr->toImageMsg() );
+    //pub->publish(cv_ptr->toImageMsg() );
+    pub->publish(centerPoint);
 }
 
 
-Mat MotionSeg::filterByMotion(Mat nextImage)
+void MotionSeg::filterByMotion(Mat nextImage)
 {
-    //cv::imshow("Next Image", nextImage);
-    //cv::waitKey(3);
     Mat grayImage1;
     Mat grayImage2;
     Mat differenceImage;
     Mat thresholdImage;
-    //const static int SENSITIVITY_VALUE = 25;
-    //const static int BLUR_SIZE = 10;
 
     cv::cvtColor(prevImage, grayImage1, COLOR_BGR2GRAY);
     cv::cvtColor(nextImage, grayImage2, COLOR_BGR2GRAY);
     cv::absdiff(grayImage1, grayImage2, differenceImage);
-    cv::threshold(differenceImage, thresholdImage, getSensitivityInt()/*SENSITIVITY_VALUE*/, 255, THRESH_BINARY);
+    cv::threshold(differenceImage, thresholdImage, getSensitivityInt(), 255, THRESH_BINARY);
 
     cv::imshow("Difference Image", differenceImage);
     cv::waitKey(3);
     cv::imshow("Threshold Image", thresholdImage);
     cv::waitKey(3);
 
-    cv::blur(thresholdImage, thresholdImage, cv::Size(getBlurInt()/*BLUR_SIZE*/, getBlurInt()/*BLUR_SIZE*/) );
-    cv::threshold(thresholdImage, thresholdImage, getSensitivityInt()/*SENSITIVITY_VALUE*/, 255, THRESH_BINARY);
+    cv::blur(thresholdImage, thresholdImage, cv::Size(getBlurInt(), getBlurInt() ) );
+    cv::threshold(thresholdImage, thresholdImage, getSensitivityInt(), 255, THRESH_BINARY);
 
-    //use this--the "final thresholdImage"
     imshow("Final Threshold Image", thresholdImage);
     cv::waitKey(3);
 
     
     searchForMovement(thresholdImage, nextImage);
-    
-    
-    
-    return thresholdImage;
 }
 
 
@@ -147,33 +99,36 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
         ROS_INFO("# of shapes found: %lu", contours.size() );
         objectDetected = true;
     }
+    else
+    {
+        objectDetected = false;
+    }
     
     if(objectDetected)
     {
-        //ROS_INFO("Found target");
-        vector<vector<Point> > largestContourVec;
-        largestContourVec.push_back(contours.at(contours.size() - 1)); //???
+        vector<vector<Point> > largestContourVec; // This is the moving object detected
+        largestContourVec.push_back(contours.at(contours.size() - 1));
+       
+        //verifyColor(largestContourVec);
 
+        // approximate the center point of the object
         objectBoundingRectangle = boundingRect(largestContourVec.at(0));
         int xpos = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
         int ypos = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
 
         theObject[0] = xpos, theObject[1] = ypos;
+        
+        verifyColor(largestContourVec, Point(xpos, ypos));
     }
 
     int x = theObject[0];
     int y = theObject[1];
-
-    //cv::imshow("result", cameraFeed);
-    //cv::waitKey(3);
-
+   
     Mat finalImage;
     cameraFeed.copyTo(finalImage);
    
-    //cv::imshow("Final Image", finalImage);
-    //cv::waitKey(3);
 
-    if(getActivateGuiBool() == true)
+    if(getActivateGuiBool() && objectDetected)
     {
 	    circle(finalImage, Point(x,y), 20, Scalar(0,255,0),2);
 	    line(finalImage, Point(x,y), Point(x,y-25), Scalar(0,255,0), 2);
@@ -181,13 +136,77 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
 	    line(finalImage, Point(x,y), Point(x-25,y), Scalar(0,255,0), 2);
 	    line(finalImage, Point(x,y), Point(x+25,y), Scalar(0,255,0), 2);
     
-	    //putText(cameraFeed,"Tracking object at (" + intToString(x)+","+intToString(y)+")",Point(x,y),1,1,Scalar(255,0,0),2);
-        putText(finalImage, "tracking object", Point(x,y),1,1,Scalar(255,0,0),2);
+        ostringstream convert;
+        convert << "tracking object at (" << x << ", " << y << ")";
+        setCenterPoint(x, y); // Set member variable
+	    putText(finalImage, convert.str(), Point(x,y), 1, 1, Scalar(255,0,0), 2);
     }
+
     cv::imshow("Final Image", finalImage);
     cv::waitKey(3);
 }
-        
+
+
+float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point centerPixel)
+{
+    float redSum = 0.0;
+    float greenSum = 0.0;
+    float blueSum = 0.0;
+    float redAv = 0.0;
+    float greenAv = 0.0;
+    float blueAv = 0.0;
+    float count = 0.0;
+    float probability = 0.0;
+
+
+    for(size_t i = 0; i < movingObjectCoors.at(0).size(); i++)
+    {
+        prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y, movingObjectCoors.at(0).at(i).x)[2] = 255;
+    }
+    
+/*
+    for(size_t i = 0; i < 5; i++)
+    {
+        if(centerPixel.x > 5 && centerPixel.x < prevImage.rows && centerPixel.y > 5 && centerPixel.y < prevImage.cols)
+        {
+            
+            redSum += prevImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[2];   // R
+            greenSum += prevImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[1]; // G
+            blueSum += prevImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[0];  // B
+            
+            redSum += prevImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[2];   // R
+            greenSum += prevImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[1]; // G
+            blueSum += prevImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[0];  // B
+            
+            redSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[2];   // R
+            greenSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[1]; // G
+            blueSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[0];  // B
+            
+            redSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[2];   // R
+            greenSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[1]; // G
+            blueSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[0];  // B
+            
+            count += 4;
+            
+            
+            prevImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[2] = 255;
+            prevImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[2] = 255;
+            prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[2] = 255;
+            prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[2] = 255;
+        }
+    }
+
+    redAv = redSum / count;
+    greenAv = greenSum / count;
+    blueAv = greenSum / count;
+    cout << "Average RGB: " << redAv << ", " << greenAv << ", " << blueAv << endl;
+*/
+
+    cv::imshow("Bound + 25px", prevImage);
+    cv::waitKey(3);
+
+    return probability;
+}
 
 
 void MotionSeg::setActivateGuiBool(bool activateGuiBool)
@@ -223,6 +242,19 @@ void MotionSeg::setBlurInt(int blurInt)
 int MotionSeg::getBlurInt()
 {
     return blurInt;
+}
+
+
+void MotionSeg::setCenterPoint(int x, int y)
+{
+    centerPoint.x = x;
+    centerPoint.y = y;
+}
+
+
+geometry_msgs::Point MotionSeg::getCenterPoint()
+{
+    return centerPoint;
 }
 
 
