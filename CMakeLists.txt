@@ -176,15 +176,36 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+##- - - - - - -
+add_executable(ColorSeg_main src/ColorSeg_main.cpp
+                             src/ColorSeg.cpp)
+target_link_libraries(ColorSeg_main ${catkin_LIBRARIES})
+target_link_libraries(ColorSeg_main ${OpenCV_LIBRARIES})
+add_dependencies(ColorSeg_main ${laser_detection}_gencfg)
 
-add_executable(DynImageSegmentation_main src/DynImageSegmentation_main.cpp
-                                         src/DynImageSegmentation.cpp)
-target_link_libraries(DynImageSegmentation_main ${catkin_LIBRARIES})
-target_link_libraries(DynImageSegmentation_main ${OpenCV_LIBRARIES})
-add_dependencies(DynImageSegmentation_main ${laser_detection}_gencfg)
+
+add_executable(MotionSeg_main src/MotionSeg_main.cpp
+                              src/MotionSeg.cpp)
+target_link_libraries(MotionSeg_main ${catkin_LIBRARIES})
+target_link_libraries(MotionSeg_main ${OpenCV_LIBRARIES})
+add_dependencies(MotionSeg_main ${laser_detection}_gencfg)
+
+add_executable(ShapeSeg_main src/ShapeSeg_main.cpp
+                             src/ShapeSeg.cpp)
+target_link_libraries(ShapeSeg_main ${catkin_LIBRARIES})
+target_link_libraries(ShapeSeg_main ${OpenCV_LIBRARIES})
+add_dependencies(ShapeSeg_main ${laser_detection}_gencfg)
 
 
 
+##- - - - - - -
+
+add_executable(HsxSeg_main src/HsxSeg_main.cpp
+                           src/HsxSeg.cpp)
+target_link_libraries(HsxSeg_main ${catkin_LIBRARIES})
+target_link_libraries(HsxSeg_main ${OpenCV_LIBRARIES})
+
+##- - - - - - -
 add_executable(DynCloudSegmentation_main src/DynCloudSegmentation_main.cpp
                                          src/DynCloudSegmentation.cpp)
 target_link_libraries(DynCloudSegmentation_main ${catkin_LIBRARIES})

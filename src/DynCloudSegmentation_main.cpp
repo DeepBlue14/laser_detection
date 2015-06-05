@@ -65,17 +65,25 @@ int main(int argc, char **argv)
     Publisher* mainsImagePub = dynCloudSeg.getPublisher();//will this cause an issue, because I am getting 2 pointers to the SAME publisher???
     Publisher* mainsPointcloudPub = dynCloudSeg.getPublisher();
 
-    /*
+    
     Subscriber imageSub = nh.subscribe<sensor_msgs::Image>("/camera/rgb/image_rect_color",
                                                              1,
                                                              &DynCloudSegmentation::imageCallback,
-                                                             &DynCloudSegmentation);
-    */
-    Subscriber imageSub = nh.subscribe<sensor_msgs::Image>("/scooter/camera/image",
+                                                             &dynCloudSeg);
+    /*
+    Subscriber colorSub = nh.subscribe<sensor_msgs::Image>("/scooter/rgb/image_rect_color",
                                                             1,
                                                             &DynCloudSegmentation::imageCallback,
                                                             &dynCloudSeg);
-
+    Subscriber motionSub = nh.subscribe<sensor_msgs::Image>("scooter/rgb/tracked_image",
+                                                            1,
+                                                            &DynCloudSegmentation::imageCallback,
+                                                            &dynCloudSeg);
+    Subscriber shapeSub = nh.subscribe<sensor_msgs::Image>("scooter/rgb/shape_image),
+                                                            1,
+                                                            &DynCloudSegmentation::imageCallback,
+                                                            &dynCloudSeg);
+    */
     Subscriber pointcloudSub = nh.subscribe<PointCloud<PointXYZRGB>::Ptr>("/camera/depth_registered/points",
                                                                       1,
                                                                       &DynCloudSegmentation::pointcloudCallback,

@@ -17,6 +17,7 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/image_encodings.h>
+#include <geometry_msgs/Point.h>
 #include <dynamic_reconfigure/server.h>
 #include <laser_detection/CloudParamsConfig.h>
 
@@ -77,6 +78,8 @@ class DynCloudSegmentation
         static double clusterTolerance;
         static int minClusterSize;
         static int maxClusterSize;
+
+        vector<geometry_msgs::Point> clusterCenterVec;
 
     public:
         DynCloudSegmentation();

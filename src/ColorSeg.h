@@ -1,15 +1,17 @@
 /*
- * File: DynImageSegmentation.h
+ * File: ColorSeg.h
  * Author: James Kuczynski
  * Email: jkuczyns@cs.uml.edu
- * File Description: 
+ * File Description: This node subscribes to /camera/rgb/image_rect_color, and 
+ *                   dynamically allows the user to filter the image by rgb
+ *                   values.
  *
  *
  * Created May 26, 2015 at 6:00pm
  */
 
-#ifndef DYN_IMAGE_SEGMENTATION_H
-#define DYN_IMAGE_SEGMENTATION_H
+#ifndef COLOR_SEG_H
+#define COLOR_SEG_H
 
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -51,7 +53,7 @@ using namespace pcl;
 using namespace cv;
 using namespace std;
 
-class DynImageSegmentation
+class ColorSeg
 {
     private:
 	    static bool activateGuiBool;
@@ -62,28 +64,18 @@ class DynImageSegmentation
         static int greenMaxInt;
         static int blueMaxInt;
 
-        static int sensitivityInt;
-        static int blurInt;
-
         vector<int> validXVec;
         vector<int> validYVec;
         int minX;
         int minY;
         int maxX;
         int maxY;
-        
-        bool nextIterBool;
-        Mat prevImage;
 
 	    Publisher* pub;
 
     public:
-	    DynImageSegmentation();
+	    ColorSeg();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
-        //void filterByColor();
-        Mat filterByMotion(Mat nextImage);
-        void searchForMovement(Mat thresholdImage, Mat& cameraFeed);
-        //void drawBoundingBox();
 	    void setActivateGuiBool(bool activateGuiBool);
 	    bool getActivateGuiBool();
 	    void setRedMinInt(int redMinInt);
@@ -98,13 +90,9 @@ class DynImageSegmentation
         int getGreenMaxInt();
         void setBlueMaxInt(int blueMaxInt);
         int getBlueMaxInt();
-        void setSensitivityInt(int sensitivityInt);
-        int getSensitivityInt();
-        void setBlurInt(int blurInt);
-        int getBlurInt();
 	    Publisher* getPublisher();
-	    ~DynImageSegmentation();
+	    ~ColorSeg();
 
 };
 
-#endif /* LASER_DETECTION_CV_H */
+#endif /* COLOR_SEG_H */

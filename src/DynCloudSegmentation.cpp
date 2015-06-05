@@ -19,7 +19,7 @@ int DynCloudSegmentation::maxClusterSize = 25000;
 DynCloudSegmentation::DynCloudSegmentation()
 {
     pub = new Publisher();
-    readyBool = false;
+    readyBool = false; 
 }
 
 
@@ -50,7 +50,7 @@ void DynCloudSegmentation::copyColorToCloud()
 
     try
     {
-        cv_ptr = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::RGB8);
+        cv_ptr = cv_bridge::toCvCopy(image/*, sensor_msgs::image_encodings::RGB8*/);
     }
     catch(cv_bridge::Exception& e)
     {
@@ -174,17 +174,13 @@ PointCloud<PointXYZRGB>::Ptr DynCloudSegmentation::euclideanClusterExtraction(Po
 
     std::vector<pcl::PointIndices> cluster_indices;
     pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
-    //ec.setClusterTolerance (0.02); // 2cm
     ec.setClusterTolerance(getClusterTolerance() );
-    //ec.setMinClusterSize (100);
     ec.setMinClusterSize(getMinClusterSize() );
-    //ec.setMaxClusterSize (25000);
     ec.setMaxClusterSize(getMaxClusterSize() );
     ec.setSearchMethod (tree);
     ec.setInputCloud (cloud_filtered);
     ec.extract (cluster_indices);
 
-    int j = 0;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZRGB>);
     *cloud_cluster = *cloud;
    
@@ -194,24 +190,42 @@ PointCloud<PointXYZRGB>::Ptr DynCloudSegmentation::euclideanClusterExtraction(Po
         cloud_cluster->points[i].g = getInvalid_g();
         cloud_cluster->points[i].b = getInvalid_b();
     }
+    
 
     for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
     {
+        float sumX = 0.0;
+        float sumY = 0.0;
+        float sumZ = 0.0;
+        int count = 0;
+
         //pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZRGB>);//old
         for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
         {
             cloud_cluster->points[*pit] = cloud_filtered->points[*pit];
             //cloud_cluster->points.push_back (cloud_filtered->points[*pit]);
-            cloud_cluster->points[*pit].r = 0;
+            cloud_cluster->points[*pit].r = 255;
             cloud_cluster->points[*pit].g = 0;
-            cloud_cluster->points[*pit].b = 175;
+            cloud_cluster->points[*pit].b = 0;
             //cout << "updated color" << *pit << endl;
+            
+            sumX += cloud_cluster->points[*pit].x;
+            sumY += cloud_cluster->points[*pit].y;
+            sumZ += cloud_cluster->points[*pit].z;
+            count++;
         }
 
-        j++;
+        geometry_msgs::Point point;
+        point.x = sumX / count;
+        point.y = sumY / count;
+        point.z = sumZ / count;
+        clusterCenterVec.push_back(point);
+        ROS_INFO("Point center: x=%f y=%f z=%f", point.x, point.y, point.z);
+
     }
     
     cout << "Number of clusters: " << cluster_indices.size() << endl;
+
 
     //return cloud_filtered;
     return cloud_cluster;

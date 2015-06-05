@@ -24,10 +24,14 @@ The purpose of this project is to focus on a given object which the laser is poi
 
 
 **Run:**
+
+To run individual nodes:
 ```bash
 roslaunch openni2_launch openni2.launch
-rosrun laser_detection GreenDetectionCv_main
-rosrun laser_detection GreenPart2_main
+rosrun laser_detection ColorSeg_main
+rosrun laser_detection ShapeSeg_main
+rosrun laser_detection MotionSeg_main
+
 rosrun rqt_reconfigure rqt_reconfigure
 rosrun rviz rviz
 ```
@@ -36,4 +40,5 @@ rosrun rviz rviz
 - In Rviz, select a "PointCloud2" option, and for the topic choose "/scooter/depth_registered/points".
 - Select "GreenDetectionPcl" from the menu of the rqt_reconfigure gui.
 
-**NOTE**: If GreenPart2_main segfaults when you begin it, rosrun it again. *(This error occurs if two threads are out of sync.  A fix for this is being worked in pressently.)*
+
+

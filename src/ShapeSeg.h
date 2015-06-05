@@ -1,16 +1,16 @@
 /*
- * File: DynImageSegmentation.h
+ * File: ShapeSeg.h
  * Author: James Kuczynski
  * Email: jkuczyns@cs.uml.edu
- * File Description: 
+ * File Description: This node subscribes to /camera/rgb/image_rect_color, and
+ *                   detects circular objects. (...)
  *
- * Reference: http://docs.opencv.org/doc/tutorials/imgproc/shapedescriptors/bounding_rects_circles/bounding_rects_circles.html
  *
  * Created May 26, 2015 at 6:00pm
  */
 
-#ifndef TEST_H
-#define TEST_H
+#ifndef SHAPE_SEG_H
+#define SHAPE_SEG_H
 
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -33,6 +33,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
+#include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
@@ -43,6 +44,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 #include <assert.h>
 
 using namespace ros;
@@ -50,16 +52,13 @@ using namespace pcl;
 using namespace cv;
 using namespace std;
 
-class Test
+class ShapeSeg
 {
     private:
 	    static bool activateGuiBool;
-	    static int redMinInt;
-	    static int greenMinInt;
-	    static int blueMinInt;
-        static int redMaxInt;
-        static int greenMaxInt;
-        static int blueMaxInt;
+	    
+        static int sensitivityInt;
+        static int blurInt;
 
         vector<int> validXVec;
         vector<int> validYVec;
@@ -67,31 +66,26 @@ class Test
         int minY;
         int maxX;
         int maxY;
+        
+        bool nextIterBool;
+        Mat prevImage;
 
 	    Publisher* pub;
 
     public:
-	    Test();
+	    ShapeSeg();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
-        //void filterByColor();
-        //void drawBoundingBox();
+        Mat filterByMotion(Mat nextImage);
+        //void searchForMovement(Mat thresholdImage, Mat& cameraFeed);
 	    void setActivateGuiBool(bool activateGuiBool);
 	    bool getActivateGuiBool();
-	    void setRedMinInt(int redMinInt);
-	    int getRedMinInt();
-	    void setGreenMinInt(int greenMinInt);
-	    int getGreenMinInt();
-	    void setBlueMinInt(int blueMinInt);
-	    int getBlueMinInt();
-        void setRedMaxInt(int redMaxInt);
-        int getRedMaxInt();
-        void setGreenMaxInt(int greenMaxInt);
-        int getGreenMaxInt();
-        void setBlueMaxInt(int blueMaxInt);
-        int getBlueMaxInt();
+        void setSensitivityInt(int sensitivityInt);
+        int getSensitivityInt();
+        void setBlurInt(int blurInt);
+        int getBlurInt();
 	    Publisher* getPublisher();
-	    ~Test();
+	    ~ShapeSeg();
 
 };
 
-#endif /* TEST_H */
+#endif /* SHAPE_SEG_H */

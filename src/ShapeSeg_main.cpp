@@ -1,5 +1,5 @@
 /*
- * File: DynImageSegmentation_main.cpp
+ * File: shapeSeg_main.cpp
  * Author: James Kuczynski
  * Email: jkuczyns@cs.uml.edu
  * File Description: 
@@ -22,30 +22,24 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "DynImageSegmentation.h"
+#include "ShapeSeg.h"
 
 using namespace ros;
 using namespace pcl;
 using namespace std;
 
 
-DynImageSegmentation dynImageSeg;
+ShapeSeg shapeSeg;
 
 
 void drCallback(laser_detection::ImageParamsConfig& config, uint32_t level)
 {
     if(config.Activate == true)
     {
-        dynImageSeg.setActivateGuiBool(config.Activate);
-        dynImageSeg.setRedMinInt(config.Red_Min);
-        dynImageSeg.setGreenMinInt(config.Green_Min);
-        dynImageSeg.setBlueMinInt(config.Blue_Min);
-        dynImageSeg.setRedMaxInt(config.Red_Max);
-        dynImageSeg.setGreenMaxInt(config.Green_Max);
-        dynImageSeg.setBlueMaxInt(config.Blue_Max);
+        shapeSeg.setActivateGuiBool(config.Activate);
 
-        dynImageSeg.setSensitivityInt(config.Sensitivity);
-        dynImageSeg.setBlurInt(config.Blur);
+        shapeSeg.setSensitivityInt(config.Shape_Sensitivity);
+        shapeSeg.setBlurInt(config.Shape_Blur);
     }
     else
     {
@@ -56,20 +50,20 @@ void drCallback(laser_detection::ImageParamsConfig& config, uint32_t level)
 
 int main(int argc, char **argv)
 {
-    init(argc, argv, "DynImageSegmentation");
+    init(argc, argv, "shapeSegmentation");
     
     ROS_INFO("Starting node\n");
 
     NodeHandle nh;
 
-    Publisher* mainsPub = dynImageSeg.getPublisher();
+    Publisher* mainsPub = shapeSeg.getPublisher();
 
     Subscriber sub = nh.subscribe<sensor_msgs::Image>("/camera/rgb/image_rect_color",
                                                         10,
-                                                        &DynImageSegmentation::callback,
-                                                        &dynImageSeg);
+                                                        &ShapeSeg::callback,
+                                                        &shapeSeg);
 
-    *mainsPub = nh.advertise<sensor_msgs::Image>("/scooter/camera/image", 10);
+    *mainsPub = nh.advertise<sensor_msgs::Image>("/scooter/rgb/shape_image", 10);
 
     dynamic_reconfigure::Server<laser_detection::ImageParamsConfig> server;
     dynamic_reconfigure::Server<laser_detection::ImageParamsConfig>::CallbackType f;

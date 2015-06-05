@@ -1,12 +1,26 @@
 <!-- -*- xml -*- -->
 <launch>
-    <node name="DynImageSegmentation_main"
+    <node name="ColorSeg_main"
           pkg="laser_detection"
-          type="DynImageSegmentation_main"
+          type="ColorSeg_main"
           required="true"
           output="screen" />
-    <node name="DynCloudSegmentation_main"
+
+    <node name="ShapeSeg_main"
+          pkg="laser_detection"
+          type="ShapeSeg_main"
+          required="true"
+          output="screen" />
+
+    <node name="MotionSeg_main"
+          pkg="laser_detection"
+          type="MotionSeg_main"
+          required="true"
+          output="screen" />
+
+<!--    <node name="DynCloudSegmentation_main"
           pkg="laser_detection"
           type="DynCloudSegmentation_main"
           required="true"
           output="screen" />
+-->

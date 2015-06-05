@@ -1,24 +1,18 @@
-#include "DynImageSegmentation.h"
+#include "MotionSeg.h"
 
 
-bool DynImageSegmentation::activateGuiBool = false;
-int DynImageSegmentation::redMinInt = 0;
-int DynImageSegmentation::greenMinInt = 0;
-int DynImageSegmentation::blueMinInt = 0;
-int DynImageSegmentation::redMaxInt = 0;
-int DynImageSegmentation::greenMaxInt = 0;
-int DynImageSegmentation::blueMaxInt = 0;
-int DynImageSegmentation::sensitivityInt = 0;
-int DynImageSegmentation::blurInt = 0;
+bool MotionSeg::activateGuiBool = false;
+int MotionSeg::sensitivityInt = 0;
+int MotionSeg::blurInt = 0;
 
 
-DynImageSegmentation::DynImageSegmentation()
+MotionSeg::MotionSeg()
 {
     pub = new Publisher();
 }
 
 
-void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
+void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
 {
     //initialize variables
     minX = 1000000;
@@ -38,11 +32,10 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
     cv_bridge::CvImagePtr cv_ptr;
     cv::Mat cvImage;
 
-
-
     try
     {
-        cv_ptr = cv_bridge::toCvCopy(input, sensor_msgs::image_encodings::RGB8); // how about RGB16???
+        //http://docs.ros.org/indigo/api/sensor_msgs/html/image__encodings_8h_source.html
+        cv_ptr = cv_bridge::toCvCopy(input/*, sensor_msgs::image_encodings::RGB16*//*RGB8*/); // TYPE_32SC4
     }
     catch(cv_bridge::Exception& e)
     {
@@ -53,77 +46,15 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
     cv::imshow("Initial Image", cvImage);
     cv::waitKey(3);
 
-
-    for(size_t y = 0; y < cvImage.rows; y++)
-    {
-        for(size_t x = 0; x < cvImage.cols; x++)
-        {
-            Vec3b color = cvImage.at<Vec3b>(Point(x,y));
-
-            float red = color.val[2];
-            float green = color.val[1];
-            float blue = color.val[0];
-            //cout << red << "\n" << green << "\n" << blue << "\n\n\n" << endl;
-            //- - -
-            
-            if( (red < redMinInt) || (red > redMaxInt) )
-            {
-                red = 0;
-                green = 0;
-                blue = 0;
-            }
-            else if( (green < greenMinInt) || (green > greenMaxInt) )
-            {
-                red = 0;
-                green = 0;
-                blue = 0;
-            }
-            else if( (blue < blueMinInt) || (blue > blueMaxInt) )
-            {
-                red = 0;
-                green = 0;
-                blue = 0;
-            }
-            else
-            {
-                validXVec.push_back(x);
-                validYVec.push_back(y);
-                if(x < minX)
-                {
-                    minX = x;
-                }
-                if(x > maxX)
-                {
-                    maxX = x;
-                }
-                if(y < minY)
-                {
-                    minY = y;
-                }
-                if(y > maxY)
-                {
-                    maxY = y;
-                }
-            }
-
-            color.val[2] = red;
-            color.val[1] = green;
-            color.val[0] = blue;
-            cvImage.at<Vec3b>(Point(x,y)) = color;
-        }
-    }
 /*
  // Circle detection
  //http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/
     //- - - - - - -
     Mat image_gray;
     cvtColor(cvImage, image_gray, CV_BGR2GRAY);
-
     /// Reduce the noise
     GaussianBlur(image_gray, image_gray, Size(9, 9), 2, 2);
-
     vector<Vec3f> circles;
-
     /// Apply the Hough Transform to find the circle(s)
     HoughCircles(image_gray, circles, CV_HOUGH_GRADIENT, 5, image_gray.rows/6, 200, 10, 1, 10);
     ROS_INFO("Number of circles detected:%lu", circles.size() );
@@ -162,7 +93,7 @@ void DynImageSegmentation::callback(const sensor_msgs::ImageConstPtr& input)
 }
 
 
-Mat DynImageSegmentation::filterByMotion(Mat nextImage)
+Mat MotionSeg::filterByMotion(Mat nextImage)
 {
     //cv::imshow("Next Image", nextImage);
     //cv::waitKey(3);
@@ -199,7 +130,7 @@ Mat DynImageSegmentation::filterByMotion(Mat nextImage)
 }
 
 
-void DynImageSegmentation::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
+void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
 {
     bool objectDetected = false;
     Mat temp;
@@ -242,136 +173,66 @@ void DynImageSegmentation::searchForMovement(Mat thresholdImage, Mat& cameraFeed
     //cv::imshow("Final Image", finalImage);
     //cv::waitKey(3);
 
-	circle(finalImage, Point(x,y), 20, Scalar(0,255,0),2);
-	line(finalImage, Point(x,y), Point(x,y-25), Scalar(0,255,0), 2);
-	line(finalImage, Point(x,y), Point(x,y+25), Scalar(0,255,0), 2);
-	line(finalImage, Point(x,y), Point(x-25,y), Scalar(0,255,0), 2);
-	line(finalImage, Point(x,y), Point(x+25,y), Scalar(0,255,0), 2);
+    if(getActivateGuiBool() == true)
+    {
+	    circle(finalImage, Point(x,y), 20, Scalar(0,255,0),2);
+	    line(finalImage, Point(x,y), Point(x,y-25), Scalar(0,255,0), 2);
+	    line(finalImage, Point(x,y), Point(x,y+25), Scalar(0,255,0), 2);
+	    line(finalImage, Point(x,y), Point(x-25,y), Scalar(0,255,0), 2);
+	    line(finalImage, Point(x,y), Point(x+25,y), Scalar(0,255,0), 2);
     
-	//putText(cameraFeed,"Tracking object at (" + intToString(x)+","+intToString(y)+")",Point(x,y),1,1,Scalar(255,0,0),2);
-    putText(finalImage, "tracking object", Point(x,y),1,1,Scalar(255,0,0),2);
-    
+	    //putText(cameraFeed,"Tracking object at (" + intToString(x)+","+intToString(y)+")",Point(x,y),1,1,Scalar(255,0,0),2);
+        putText(finalImage, "tracking object", Point(x,y),1,1,Scalar(255,0,0),2);
+    }
     cv::imshow("Final Image", finalImage);
     cv::waitKey(3);
 }
         
 
 
-void DynImageSegmentation::setActivateGuiBool(bool activateGuiBool)
+void MotionSeg::setActivateGuiBool(bool activateGuiBool)
 {
     this->activateGuiBool = activateGuiBool;
 }
 
 
-bool DynImageSegmentation::getActivateGuiBool()
+bool MotionSeg::getActivateGuiBool()
 {
     return activateGuiBool;
 }
 
 
-void DynImageSegmentation::setRedMinInt(int redMinInt)
-{
-    this->redMinInt = redMinInt;
-}
-
-
-int DynImageSegmentation::getRedMinInt()
-{
-    return redMinInt;
-}
-
-
-void DynImageSegmentation::setGreenMinInt(int greenMinInt)
-{
-    this->greenMinInt = greenMinInt;
-}
-
-
-int DynImageSegmentation::getGreenMinInt()
-{
-    return greenMinInt;
-}
-
-
-void DynImageSegmentation::setBlueMinInt(int blueMinInt)
-{
-    this->blueMinInt = blueMinInt;
-}
-
-
-int DynImageSegmentation::getBlueMinInt()
-{
-    return blueMinInt;
-}
-
-
-void DynImageSegmentation::setRedMaxInt(int redMaxInt)
-{
-    this->redMaxInt = redMaxInt;
-}
-
-
-int DynImageSegmentation::getRedMaxInt()
-{
-    return redMaxInt;
-}
-
-
-void DynImageSegmentation::setGreenMaxInt(int greenMaxInt)
-{
-    this->greenMaxInt = greenMaxInt;
-}
-
-
-int DynImageSegmentation::getGreenMaxInt()
-{
-    return greenMaxInt;
-}
-
-
-void DynImageSegmentation::setBlueMaxInt(int blueMaxInt)
-{
-    this->blueMaxInt = blueMaxInt;
-}
-
-
-int DynImageSegmentation::getBlueMaxInt()
-{
-    return blueMaxInt;
-}
-
-
-void DynImageSegmentation::setSensitivityInt(int sensitivityInt)
+void MotionSeg::setSensitivityInt(int sensitivityInt)
 {
     this->sensitivityInt = sensitivityInt;
 }
 
 
-int DynImageSegmentation::getSensitivityInt()
+int MotionSeg::getSensitivityInt()
 {
     return sensitivityInt;
 }
 
 
-void DynImageSegmentation::setBlurInt(int blurInt)
+void MotionSeg::setBlurInt(int blurInt)
 {
     this->blurInt = blurInt;
 }
 
 
-int DynImageSegmentation::getBlurInt()
+int MotionSeg::getBlurInt()
 {
     return blurInt;
 }
 
 
-Publisher* DynImageSegmentation::getPublisher()
+Publisher* MotionSeg::getPublisher()
 {
     return pub;
 }
 
 
-DynImageSegmentation::~DynImageSegmentation()
+MotionSeg::~MotionSeg()
 {
     ;
 }
