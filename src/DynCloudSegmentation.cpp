@@ -19,30 +19,34 @@ int DynCloudSegmentation::maxClusterSize = 25000;
 DynCloudSegmentation::DynCloudSegmentation()
 {
     pub = new Publisher();
-    readyBool = false; 
+    imageIsReady = false;
+    pointIsReady = false;
+    cloudIsReady = false; 
 }
 
 
 void DynCloudSegmentation::imageCallback(const sensor_msgs::ImageConstPtr& image)
 {
     this->image = image;
-    readyBool = true; // ???Move this to point callback???
+    imageIsReady = true; // ???Move this to point callback???
 }
 
 
-void DynCloudSegmentation::pointCallback(const geometry_msgs::PointConstPtr& point)
+void DynCloudSegmentation::pointCallback(const geometry_msgs::PointConstPtr& pixelPoint)
 {
-    this->point = point;
+    this->pixelPoint = pixelPoint;
+    pointIsReady = true;
 }
 
 
 void DynCloudSegmentation::pointcloudCallback(PointCloud<PointXYZRGB>::Ptr cloud)
 {
     this->cloud = cloud;
+    cloudIsReady = true;
 
     //makesure that the image has been initialized; without this check
     //there would be a seg fault.
-    if(readyBool == true)
+    if(imageIsReady == true && pointIsReady == true && cloudIsReady == true)
     {
         copyColorToCloud();
     }
@@ -76,7 +80,7 @@ void DynCloudSegmentation::copyColorToCloud()
             cloud->points[pclCount].g = color.val[1];
             cloud->points[pclCount].b = color.val[0];
             
-            if(y == point->y && x == point->x) //???
+            if(y == pixelPoint->y && x == pixelPoint->x) //???
             {
                 realWorldCoorPoint.x = cloud->points[pclCount].x;
                 realWorldCoorPoint.y = cloud->points[pclCount].y;
@@ -262,12 +266,12 @@ PointCloud<PointXYZRGB>::Ptr DynCloudSegmentation::euclideanClusterExtraction(Po
         }
         
 
-        geometry_msgs::Point point;
-        point.x = sumX / count;
-        point.y = sumY / count;
-        point.z = sumZ / count;
-        clusterCenterVec.push_back(point);
-        //ROS_INFO("Object center: x=%f y=%f z=%f", point.x, point.y, point.z);
+        geometry_msgs::Point clusterCenterPoint;
+        clusterCenterPoint.x = sumX / count;
+        clusterCenterPoint.y = sumY / count;
+        clusterCenterPoint.z = sumZ / count;
+        clusterCenterVec.push_back(clusterCenterPoint);
+        //ROS_INFO("Object center: x=%f y=%f z=%f", clusterCenterPoint.x, clusterCenterPoint.y, clusterCenterPoint.z);
 
     }
     
