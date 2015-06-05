@@ -1,17 +1,5 @@
 <!-- -*- xml -*- -->
 <launch>
-    <node name="ColorSeg_main"
-          pkg="laser_detection"
-          type="ColorSeg_main"
-          required="true"
-          output="screen" />
-
-    <node name="ShapeSeg_main"
-          pkg="laser_detection"
-          type="ShapeSeg_main"
-          required="true"
-          output="screen" />
-
     <node name="MotionSeg_main"
           pkg="laser_detection"
           type="MotionSeg_main"
