@@ -208,9 +208,9 @@ PointCloud<PointXYZRGB>::Ptr DynCloudSegmentation::euclideanClusterExtraction(Po
         float sumX = 0.0;
         float sumY = 0.0;
         float sumZ = 0.0;
-        float maxX = 0.0;
+        float maxX = -1.0;
         float minX = 100.0;
-        float maxY = 0.0;
+        float maxY = -1.0;
         float minY = 100.0;
         int count = 0;
 
