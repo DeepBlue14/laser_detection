@@ -7,6 +7,7 @@
  *                   and publishes it.
  *
  * Reference: http://answers.opencv.org/question/52754/laser-pointer-detect-and-track/
+ *            http://people.csail.mit.edu/albert/ladypack/wiki/index.php?title=Finding_a_Laser_Dot
  *
  * Created May 26, 2015 at 6:00pm
  */
