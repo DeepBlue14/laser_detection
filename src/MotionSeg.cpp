@@ -111,7 +111,7 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
        
         //verifyColor(largestContourVec);
 
-        // approximate the center point of the object
+        // approximate the center point of the object -- assuming the object at index 0 is correct
         objectBoundingRectangle = boundingRect(largestContourVec.at(0));
         int xpos = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
         int ypos = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;

@@ -46,6 +46,7 @@ find_package(catkin REQUIRED COMPONENTS
 generate_dynamic_reconfigure_options(
     cfg/ImageParams.cfg
     cfg/CloudParams.cfg
+    cfg/HsxParams.cfg
   #...
 )
 
@@ -204,6 +205,7 @@ add_executable(HsxSeg_main src/HsxSeg_main.cpp
                            src/HsxSeg.cpp)
 target_link_libraries(HsxSeg_main ${catkin_LIBRARIES})
 target_link_libraries(HsxSeg_main ${OpenCV_LIBRARIES})
+add_dependencies(HsxSeg_main ${laser_detection}_gencfg)
 
 ##- - - - - - -
 add_executable(DynCloudSegmentation_main src/DynCloudSegmentation_main.cpp

@@ -20,7 +20,7 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <dynamic_reconfigure/server.h>
-#include <laser_detection/ImageParamsConfig.h>
+#include <laser_detection/HsxParamsConfig.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
@@ -57,11 +57,38 @@ using namespace std;
 class HsxSeg
 {
     private:
+        static bool activateGuiBool;
+        static double hMinDbl;
+        static double sMinDbl;
+        static double vMinDbl;
+        static double hMaxDbl;
+        static double sMaxDbl;
+        static double vMaxDbl;
+        static int sensitivityInt;
+        static int blurInt;
 	    Publisher* pub;
 
     public:
 	    HsxSeg();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
+        void setActivateGuiBool(bool activateGuiBool);
+        bool getActivateGuiBool();
+        void setHMinDbl(double hMinDbl);
+        double getHMinDbl();
+        void setSMinDbl(double sMinDbl);
+        double getSMinDbl();
+        void setVMinDbl(double vMinDbl);
+        double getVMinDbl();
+        void setHMaxDbl(double hMaxDbl);
+        double getHMaxDbl();
+        void setSMaxDbl(double sMaxDbl);
+        double getSMaxDbl();
+        void setVMaxDbl(double vMaxDbl);
+        double getVMaxDbl();
+        void setSensitivityInt(int sensitivityInt);
+        int getSensitivityInt();
+        void setBlurInt(int blurInt);
+        int getBlurInt();
 	    Publisher* getPublisher();
 	    ~HsxSeg();
 
