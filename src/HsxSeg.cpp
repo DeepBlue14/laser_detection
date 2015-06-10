@@ -49,7 +49,7 @@ void HsxSeg::callback(const sensor_msgs::ImageConstPtr& input)
     
     cv::Mat hsxImage;
     cv::cvtColor(cvImage, hsxImage, CV_BGR2HSV);
-    //cv::cvtColor(cvImage, hsxImage, CV_BGR2HSL);
+    //cv::cvtColor(cvImage, hsxImage, CV_BGR2HLS);
    
     cv::Mat inrangeImage;
     

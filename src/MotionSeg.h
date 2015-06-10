@@ -65,6 +65,7 @@ class MotionSeg
         static int blurInt;
         bool nextIterBool;
         Mat prevImage;
+        Mat hsvImage;
         geometry_msgs::Point centerPoint;
 	    Publisher* pub;
 

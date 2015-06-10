@@ -52,65 +52,12 @@ void ColorSeg::callback(const sensor_msgs::ImageConstPtr& input)
     cv::imshow("Initial Image", cvImage);
     cv::waitKey(3);
 
+    cv::inRange(cvImage,
+                Scalar(getRedMinInt(), getGreenMinInt(), getBlueMinInt() ),
+                Scalar(getRedMaxInt(), getGreenMaxInt(), getBlueMaxInt() ),
+                cvImage);
 
-    for(size_t y = 0; y < cvImage.rows; y++)
-    {
-        for(size_t x = 0; x < cvImage.cols; x++)
-        {
-            Vec3b color = cvImage.at<Vec3b>(Point(x,y));
 
-            float red = color.val[2];
-            float green = color.val[1];
-            float blue = color.val[0];
-            //cout << red << "\n" << green << "\n" << blue << "\n\n\n" << endl;
-            //- - -
-            
-            if( (red < redMinInt) || (red > redMaxInt) )
-            {
-                red = 0;
-                green = 0;
-                blue = 0;
-            }
-            else if( (green < greenMinInt) || (green > greenMaxInt) )
-            {
-                red = 0;
-                green = 0;
-                blue = 0;
-            }
-            else if( (blue < blueMinInt) || (blue > blueMaxInt) )
-            {
-                red = 0;
-                green = 0;
-                blue = 0;
-            }
-            else
-            {
-                validXVec.push_back(x);
-                validYVec.push_back(y);
-                if(x < minX)
-                {
-                    minX = x;
-                }
-                if(x > maxX)
-                {
-                    maxX = x;
-                }
-                if(y < minY)
-                {
-                    minY = y;
-                }
-                if(y > maxY)
-                {
-                    maxY = y;
-                }
-            }
-
-            color.val[2] = red;
-            color.val[1] = green;
-            color.val[0] = blue;
-            cvImage.at<Vec3b>(Point(x,y)) = color;
-        }
-    }
 /*
  // Circle detection
  //http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/

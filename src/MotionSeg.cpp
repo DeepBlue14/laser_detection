@@ -32,6 +32,13 @@ void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
     }
     
     cvImage = cv_ptr->image;
+    //- - - - - - - - - - - - - - - - - - - - -
+    cv::cvtColor(cvImage, hsvImage, CV_BGR2HSV);
+    /*cv::inRange(hsvImage,
+                Scalar(0, 0, 0),
+                Scalar(181, 361, 254),
+                hsvImage);*/
+    //- - - - - - - - - - - - - - - - - - - - -
     cv::imshow("Initial Image", cvImage);
     cv::waitKey(3);
 
@@ -111,7 +118,7 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
        
         //verifyColor(largestContourVec);
 
-        // approximate the center point of the object -- assuming the object at index 0 is correct
+        // !!!approximate the center point of the object -- assuming the object at index 0 is correct!!!
         objectBoundingRectangle = boundingRect(largestContourVec.at(0));
         int xpos = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
         int ypos = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
@@ -149,12 +156,12 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
 
 float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point centerPixel)
 {
-    float redSum = 0.0;
-    float greenSum = 0.0;
-    float blueSum = 0.0;
-    float redAv = 0.0;
-    float greenAv = 0.0;
-    float blueAv = 0.0;
+    float hSum = 0.0;
+    float sSum = 0.0;
+    float vSum = 0.0;
+    float hAv = 0.0;
+    float sAv = 0.0;
+    float vAv = 0.0;
     float count = 0.0;
     float probability = 0.0;
 
@@ -164,27 +171,27 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
         prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y, movingObjectCoors.at(0).at(i).x)[2] = 255;
     }
     
-/*
+
     for(size_t i = 0; i < 5; i++)
     {
-        if(centerPixel.x > 5 && centerPixel.x < prevImage.rows && centerPixel.y > 5 && centerPixel.y < prevImage.cols)
+        if(centerPixel.x > 5 && centerPixel.x < hsvImage.rows && centerPixel.y > 5 && centerPixel.y < hsvImage.cols)
         {
             
-            redSum += prevImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[2];   // R
-            greenSum += prevImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[1]; // G
-            blueSum += prevImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[0];  // B
+            hSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[0];   // H
+            sSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[1];   // S
+            vSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[2];   // V
             
-            redSum += prevImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[2];   // R
-            greenSum += prevImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[1]; // G
-            blueSum += prevImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[0];  // B
+            hSum += hsvImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[0];   // H
+            sSum += hsvImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[1];   // S
+            vSum += hsvImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[2];   // V
             
-            redSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[2];   // R
-            greenSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[1]; // G
-            blueSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[0];  // B
+            hSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[0];   // H
+            sSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[1];   // S
+            vSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[2];   // V
             
-            redSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[2];   // R
-            greenSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[1]; // G
-            blueSum += prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[0];  // B
+            hSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[0];   // H
+            sSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[1];   // S
+            vSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[2];   // V
             
             count += 4;
             
@@ -196,11 +203,11 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
         }
     }
 
-    redAv = redSum / count;
-    greenAv = greenSum / count;
-    blueAv = greenSum / count;
-    cout << "Average RGB: " << redAv << ", " << greenAv << ", " << blueAv << endl;
-*/
+    hAv = hSum / count;
+    sAv = sSum / count;
+    vAv = sSum / count;
+    cout << "Average HSV: (" << hAv << ", " << sAv << ", " << vAv << ")" << endl;
+
 
     cv::imshow("Bound + 25px", prevImage);
     cv::waitKey(3);
