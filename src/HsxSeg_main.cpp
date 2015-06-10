@@ -36,13 +36,14 @@ void drCallback(laser_detection::HsxParamsConfig& config, uint32_t level)
 {
     if(config.Activate == true)
     {
+        ROS_INFO("reciving dynamc parameters");
         hsxSeg.setActivateGuiBool(config.Activate);
-        hsxSeg.setHMinDbl(config.H_Min);
-        hsxSeg.setSMinDbl(config.S_Min);
-        hsxSeg.setVMinDbl(config.V_Min);
-        hsxSeg.setHMaxDbl(config.H_Max);
-        hsxSeg.setSMaxDbl(config.S_Max);
-        hsxSeg.setVMaxDbl(config.V_Max);
+        hsxSeg.setHMinInt(config.H_Min);
+        hsxSeg.setSMinInt(config.S_Min);
+        hsxSeg.setVMinInt(config.V_Min);
+        hsxSeg.setHMaxInt(config.H_Max);
+        hsxSeg.setSMaxInt(config.S_Max);
+        hsxSeg.setVMaxInt(config.V_Max);
         hsxSeg.setSensitivityInt(config.Sensitivity);
         hsxSeg.setBlurInt(config.Blur);
     }
@@ -72,6 +73,7 @@ int main(int argc, char **argv)
 
     dynamic_reconfigure::Server<laser_detection::HsxParamsConfig> server;
     dynamic_reconfigure::Server<laser_detection::HsxParamsConfig>::CallbackType f;
+    f = boost::bind(&drCallback, _1, _2);
     server.setCallback(f);
 
 

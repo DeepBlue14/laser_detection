@@ -2,12 +2,12 @@
 
 
 bool HsxSeg::activateGuiBool = false;
-double HsxSeg::hMinDbl = 0.0;
-double HsxSeg::sMinDbl = 0.0;
-double HsxSeg::vMinDbl = 0.0;
-double HsxSeg::hMaxDbl = 0.0;
-double HsxSeg::sMaxDbl = 0.0;
-double HsxSeg::vMaxDbl = 0.0;
+int HsxSeg::hMinInt = 0.0;
+int HsxSeg::sMinInt = 0.0;
+int HsxSeg::vMinInt = 0.0;
+int HsxSeg::hMaxInt = 0.0;
+int HsxSeg::sMaxInt = 0.0;
+int HsxSeg::vMaxInt = 0.0;
 int HsxSeg::sensitivityInt = 0;
 int HsxSeg::blurInt = 0;
 
@@ -44,17 +44,25 @@ void HsxSeg::callback(const sensor_msgs::ImageConstPtr& input)
     cv::waitKey(3);
 
     //- - - - - - - - - - - - - -
+    //cv::blur(thresholdImage, thresholdImage, cv::Size(getBlurInt(), getBlurInt() ) );
+    //cv::threshold(thresholdImage, thresholdImage, getSensitivityInt(), 255, THRESH_BINARY);
+    
     cv::Mat hsxImage;
     cv::cvtColor(cvImage, hsxImage, CV_BGR2HSV);
     //cv::cvtColor(cvImage, hsxImage, CV_BGR2HSL);
    
-    cv::Mat inrangeImage; 
+    cv::Mat inrangeImage;
+    
+    //cv::blur(hsxImage, hsxImage, cv::Size(1, 1) );
+    //cv::threshold(hsxImage, hsxImage, getSensitivityInt(), 255, THRESH_BINARY);
+    
     cv::inRange(hsxImage,
-                Scalar(getHMinDbl(), getSMinDbl(), getVMinDbl() ),
-                Scalar(getHMaxDbl(), getSMaxDbl(), getVMaxDbl() ),
+                Scalar(getHMinInt(), getSMinInt(), getVMinInt() ),
+                Scalar(getHMaxInt(), getSMaxInt(), getVMaxInt() ),
                 inrangeImage);
     
-
+    //cv::blur(inrangeImage, inrangeImage, cv::Size(1, 1) );
+    //cv::threshold(inrangeImage, inrangeImage, getSensitivityInt(), 255, THRESH_BINARY);
 
     //- - - - - - - - - - - - - -
     
@@ -81,75 +89,75 @@ bool HsxSeg::getActivateGuiBool()
 }
 
 
-void HsxSeg::setHMinDbl(double hMinDbl)
+void HsxSeg::setHMinInt(int hMinInt)
 {
-    this->hMinDbl = hMinDbl;
+    this->hMinInt = hMinInt;
 }
 
 
-double HsxSeg::getHMinDbl()
+int HsxSeg::getHMinInt()
 {
-    return hMinDbl;
+    return hMinInt;
 }
 
 
-void HsxSeg::setSMinDbl(double sMinDbl)
+void HsxSeg::setSMinInt(int sMinInt)
 {
-    this->sMinDbl = sMinDbl;
+    this->sMinInt = sMinInt;
 }
 
 
-double HsxSeg::getSMinDbl()
+int HsxSeg::getSMinInt()
 {
-    return sMinDbl;
+    return sMinInt;
 }
 
 
-void HsxSeg::setVMinDbl(double vMinDbl)
+void HsxSeg::setVMinInt(int vMinInt)
 {
-    this->vMinDbl = vMinDbl;
+    this->vMinInt = vMinInt;
 }
 
 
-double HsxSeg::getVMinDbl()
+int HsxSeg::getVMinInt()
 {
-    return vMinDbl;
+    return vMinInt;
 }
 
 
-void HsxSeg::setHMaxDbl(double hMaxDbl)
+void HsxSeg::setHMaxInt(int hMaxInt)
 {
-    this->hMaxDbl = hMaxDbl;
+    this->hMaxInt = hMaxInt;
 }
 
 
-double HsxSeg::getHMaxDbl()
+int HsxSeg::getHMaxInt()
 {
-    return hMaxDbl;
+    return hMaxInt;
 }
 
 
-void HsxSeg::setSMaxDbl(double sMaxDbl)
+void HsxSeg::setSMaxInt(int sMaxInt)
 {
-    this->sMaxDbl = sMaxDbl;
+    this->sMaxInt = sMaxInt;
 }
 
 
-double HsxSeg::getSMaxDbl()
+int HsxSeg::getSMaxInt()
 {
-    return sMaxDbl;
+    return sMaxInt;
 }
 
 
-void HsxSeg::setVMaxDbl(double vMaxDbl)
+void HsxSeg::setVMaxInt(int vMaxInt)
 {
-    this->vMaxDbl = vMaxDbl;
+    this->vMaxInt = vMaxInt;
 }
 
 
-double HsxSeg::getVMaxDbl()
+int HsxSeg::getVMaxInt()
 {
-    return vMaxDbl;
+    return vMaxInt;
 }
 
 
