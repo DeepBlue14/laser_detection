@@ -47,6 +47,7 @@ generate_dynamic_reconfigure_options(
     cfg/ImageParams.cfg
     cfg/CloudParams.cfg
     cfg/HsxParams.cfg
+    cfg/EvalPoint.cfg
   #...
 )
 
@@ -218,3 +219,15 @@ add_executable(Test_main src/Test_main.cpp)
     #                         src/Test.cpp)
 target_link_libraries(Test_main ${catkin_LIBRARIES})
 target_link_libraries(Test_main ${OpenCV_LIBRARIES})
+
+add_executable(ClickedImg src/ClickedImg_main.cpp)
+target_link_libraries(ClickedImg ${catkin_LIBRARIES})
+target_link_libraries(ClickedImg ${OpenCV_LIBRARIES})
+
+
+add_executable(EvalPoint src/EvalPoint_main.cpp
+                         src/EvalPoint.cpp)
+target_link_libraries(EvalPoint ${catkin_LIBRARIES})
+target_link_libraries(EvalPoint ${OpenCV_LIBRARIES})
+add_dependencies(EvalPoint ${rcv_image_view}_gencfg)
+

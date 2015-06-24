@@ -28,14 +28,16 @@ The purpose of this project is to focus on a given object which the laser is poi
 To run individual nodes:
 ```bash
 roslaunch openni2_launch openni2.launch
-rosrun laser_detection MotionSeg_main
-rosrun laser_detection DynCloudSegmentation_main
-rosrun rqt_reconfigure rqt_reconfigure
 rosrun rviz rviz
+rosrun laser_detection MotionSeg_main /*OR*/ rosrun laser_detection ClickedImg
+rosrun laser_detection EvalPoint
+rosrun rqt_reconfigure rqt_reconfigure
 ```
 
 - In the rqt_reconfigure gui, select *camera* --> *driver* --> *depth_registration*
+- In rqt_reconfigure, activate nodes
 - In Rviz, select a "PointCloud2" option, and for the topic choose "/scooter/depth_registered/points".
+- In Rviz, select /scooter*
 - *(Optional)* You can change parameters of the detection and segmentation using rqt_reconfigure
 
 
