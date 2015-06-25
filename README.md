@@ -29,11 +29,11 @@ This node subscribes subscribes to ```/scooter/geometry_msgs/center_point``` (as
 
 ####**Dependencies**
 
-- ROS
+- ROS **(tested on indigo)**
 - PCL
 - OpenCV
 **Warning:**
-OpenCV 3.0 for Linux has a known bug where the cv::imshow method may seg fault.  Therefore, I discourage using this version (as this program does use cv::imshow).
+**OpenCV 3.0 for Linux has a known bug where the cv::imshow method may seg fault.  Therefore, I discourage using this version (as this program does use cv::imshow).  If 3.0 is nessisary, I can take out the imshow and replace it with image_view :(**
 
 
 ####**Build & Run**
