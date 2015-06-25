@@ -57,7 +57,8 @@ void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
     cv_ptr->image = cvImage;
 
     //pub->publish(cv_ptr->toImageMsg() );
-    pub->publish(centerPoint);
+    if(objectDetected)
+        pub->publish(centerPoint);
 }
 
 
@@ -91,7 +92,7 @@ void MotionSeg::filterByMotion(Mat nextImage)
 
 void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
 {
-    bool objectDetected = false;
+    objectDetected = false;
     Mat temp;
     thresholdImage.copyTo(temp);
     vector<vector<Point> > contours;

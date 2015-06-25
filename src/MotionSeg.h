@@ -64,6 +64,7 @@ class MotionSeg
         static int sensitivityInt;
         static int blurInt;
         bool nextIterBool;
+        bool objectDetected;
         Mat prevImage;
         Mat hsvImage;
         geometry_msgs::Point centerPoint;
