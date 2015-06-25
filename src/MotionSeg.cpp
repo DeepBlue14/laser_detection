@@ -174,9 +174,9 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     }
     
 
-    for(size_t i = 0; i < 5; i++)
+    for(size_t i = 0; i < 2; i++)
     {
-        if(centerPixel.x > 5 && centerPixel.x < hsvImage.rows && centerPixel.y > 5 && centerPixel.y < hsvImage.cols)
+        if(centerPixel.x > 2 && centerPixel.x < hsvImage.rows && centerPixel.y > 2 && centerPixel.y < hsvImage.cols)
         {
             
             hSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[0];   // H
