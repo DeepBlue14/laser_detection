@@ -35,10 +35,10 @@ rosrun rqt_reconfigure rqt_reconfigure
 ```
 
 - In the rqt_reconfigure gui, select *camera* --> *driver* --> *depth_registration*
-- In rqt_reconfigure, activate nodes
+- In rqt_reconfigure, select the "activate" checkbox for each node
 - In Rviz, select a "PointCloud2" option, and for the topic choose "/scooter/depth_registered/points".
-- In Rviz, select /scooter*
 - *(Optional)* You can change parameters of the detection and segmentation using rqt_reconfigure
 
-
+**Notes:**
+Topics are published to ```/scooter/*```
 
