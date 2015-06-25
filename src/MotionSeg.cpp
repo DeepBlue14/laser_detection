@@ -56,8 +56,7 @@ void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
 
     cv_ptr->image = cvImage;
 
-    //pub->publish(cv_ptr->toImageMsg() );
-    if(objectDetected)
+    //if(objectDetected)
         pub->publish(centerPoint);
 }
 
