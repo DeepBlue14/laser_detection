@@ -32,6 +32,8 @@ This node subscribes subscribes to ```/scooter/geometry_msgs/center_point``` (as
 - ROS
 - PCL
 - OpenCV
+**Warning:**
+OpenCV 3.0 for Linux has a known bug where the cv::imshow method may seg fault.  Therefore, I discourage using this version (as this program does use cv::imshow).
 
 
 ####**Build & Run**
@@ -53,6 +55,5 @@ rosrun rqt_reconfigure rqt_reconfigure
 - In Rviz, select a "PointCloud2" option, and for the topic choose "/scooter/depth_registered/points".
 - *(Optional)* You can change parameters of the detection and segmentation using rqt_reconfigure
 
-**Notes:**
-Topics are published to ```/scooter/*```
+
 
