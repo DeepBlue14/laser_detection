@@ -93,13 +93,15 @@ void callback(const sensor_msgs::ImageConstPtr& input)
     cv_ptr->image = cvImage;
 
     //pub->publish(cv_ptr->toImageMsg() );
-    clickedPoint.x = 55;
-    clickedPoint.y = 111;
+    
+    clickedPoint.x = -1;
+    clickedPoint.y = -1;
+    clickedPoint.z = -1;
     
     cv::imshow("Result", cvImage);
     cv::waitKey(3); 
-    //cout << "publishing" << endl;
-    //pub->publish(clickedPoint);
+
+    pub->publish(clickedPoint);
 }
 
 
