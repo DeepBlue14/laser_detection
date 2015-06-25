@@ -9,6 +9,8 @@ int MotionSeg::blurInt = 0;
 MotionSeg::MotionSeg()
 {
     pub = new Publisher();
+    centerPoint.x = -1;
+    centerPoint.y = -1;
     centerPoint.z = -1;
 }
 
