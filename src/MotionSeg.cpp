@@ -164,52 +164,74 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     float hAv = 0.0;
     float sAv = 0.0;
     float vAv = 0.0;
-    float count = 0.0;
     float probability = 0.0;
 
-
+/////////////////////////////////////////////////////////////////
+    //cling to contours
+    int maxX = -1;
+    int minX = 1000000;
+    int maxY = -1;
+    int minY = 1000000;
+    const int OFFSET = 7; // final: 5
     for(size_t i = 0; i < movingObjectCoors.at(0).size(); i++)
-    {
-        prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y, movingObjectCoors.at(0).at(i).x)[2] = 255;
-    }
-    
-
-    for(size_t i = 0; i < 2; i++)
-    {
-        if(centerPixel.x > 2 && centerPixel.x < hsvImage.rows && centerPixel.y > 2 && centerPixel.y < hsvImage.cols)
+    {   
+        if((movingObjectCoors.at(0).at(i).y < centerPixel.y) && (i+OFFSET <= prevImage.rows)
+        && (movingObjectCoors.at(0).at(i).x < centerPixel.x) && (i+OFFSET <= prevImage.cols) )
         {
-            
-            hSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[0];   // H
-            sSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[1];   // S
-            vSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[2];   // V
-            
-            hSum += hsvImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[0];   // H
-            sSum += hsvImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[1];   // S
-            vSum += hsvImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[2];   // V
-            
-            hSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[0];   // H
-            sSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[1];   // S
-            vSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[2];   // V
-            
-            hSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[0];   // H
-            sSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[1];   // S
-            vSum += hsvImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[2];   // V
-            
-            count += 4;
-            
-            
-            prevImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[2] = 255;
-            prevImage.at<cv::Vec3b>(centerPixel.y - i, centerPixel.x)[2] = 255;
-            prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x + i)[2] = 255;
-            prevImage.at<cv::Vec3b>(centerPixel.y, centerPixel.x - i)[2] = 255;
+            prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y + OFFSET, movingObjectCoors.at(0).at(i).x + OFFSET)[2] = 255;
+        }
+        else if((movingObjectCoors.at(0).at(i).y > centerPixel.y)  && (i+OFFSET <= prevImage.rows)
+             && (movingObjectCoors.at(0).at(i).x < centerPixel.x) && (i+OFFSET <= prevImage.cols) )
+        {
+            prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y - OFFSET, movingObjectCoors.at(0).at(i).x + OFFSET)[2] = 255;
+        }
+        else if((movingObjectCoors.at(0).at(i).y < centerPixel.y)  && (i+OFFSET <= prevImage.rows)
+             && (movingObjectCoors.at(0).at(i).x > centerPixel.x) && (i+OFFSET <= prevImage.cols) )
+        {
+            prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y + OFFSET, movingObjectCoors.at(0).at(i).x - OFFSET)[2] = 255;
+        }
+        else if((movingObjectCoors.at(0).at(i).y > centerPixel.y)  && (i+OFFSET <= prevImage.rows)
+             && (movingObjectCoors.at(0).at(i).x > centerPixel.x) && (i+OFFSET <= prevImage.cols) )
+        {
+            prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y - OFFSET, movingObjectCoors.at(0).at(i).x - OFFSET)[2] = 255;
+        }
+        else
+        {
+            prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y, movingObjectCoors.at(0).at(i).x)[2] = 255;
+        }
+        
+        //hSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[0];   // H
+        //sSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[1];   // S
+        //vSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[2];   // V
+        if(movingObjectCoors.at(0).at(i).x > maxX)
+            maxX = movingObjectCoors.at(0).at(i).x;
+        else if(movingObjectCoors.at(0).at(i).x < minX)
+            minX = movingObjectCoors.at(0).at(i).x;
+        
+        if(movingObjectCoors.at(0).at(i).y > maxY)
+            maxY = movingObjectCoors.at(0).at(i).y;
+        else if(movingObjectCoors.at(0).at(i).y < minY)
+            minY = movingObjectCoors.at(0).at(i).y;
+    }
+////////////////////////////////////////////////////////////
+
+
+    cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(0, 0, 255), 1); 
+    float count = 0.0;
+    for(size_t y = 0; y < maxY; y++)
+    {
+        for(size_t x = 0; x < maxX; x++)
+        {
+            hSum += hsvImage.at<cv::Vec3b>(y, x)[0]; // H
+            sSum += hsvImage.at<cv::Vec3b>(y, x)[1]; // S
+            vSum += hsvImage.at<cv::Vec3b>(y, x)[2]; // V
+            count++;
         }
     }
-
     hAv = hSum / count;
     sAv = sSum / count;
     vAv = sSum / count;
     cout << "Average HSV: (" << hAv << ", " << sAv << ", " << vAv << ")" << endl;
-
 
     cv::imshow("Bound + 25px", prevImage);
     cv::waitKey(3);
