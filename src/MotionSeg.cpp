@@ -215,8 +215,9 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     }
 ////////////////////////////////////////////////////////////
 
-
-    cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(0, 0, 255), 1); 
+    if(((maxX - minX) < 25) && ((maxY - minY) < 25) ) // i.e. moving object is about the right size
+        cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(255, 0, 0), 1);
+        
     float count = 0.0;
     for(size_t y = 0; y < maxY; y++)
     {
@@ -231,7 +232,10 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     hAv = hSum / count;
     sAv = sSum / count;
     vAv = sSum / count;
-    cout << "Average HSV: (" << hAv << ", " << sAv << ", " << vAv << ")" << endl;
+    /*if((hAv > 69.0 && hAv < 80.0)
+    && (sAv > 39.0 && sAv < 50.0)
+    && (vAv > 39.0 && vAv < 50.0) )*/
+        cout << "Average HSV: (" << hAv << ", " << sAv << ", " << vAv << ")" << endl;
 
     cv::imshow("Bound + 25px", prevImage);
     cv::waitKey(3);

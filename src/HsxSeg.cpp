@@ -70,6 +70,33 @@ void HsxSeg::callback(const sensor_msgs::ImageConstPtr& input)
     cv::waitKey(3);
     cv::imshow("inRange Image", inrangeImage);
     cv::waitKey(3); 
+    
+    //^^^^^^^^^^^^^^^^^
+    bool objectDetected = false;
+    Mat temp;
+    inrangeImage.copyTo(temp);
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    int theObject[2] = {0,0};
+    Rect objectBoundingRectangle = Rect(0,0,0,0);
+
+    findContours(temp,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE );
+
+    if(contours.size() > 0)
+    {
+        ROS_INFO("# of shapes found: %lu", contours.size() );
+        objectDetected = true;
+    }
+    else
+    {
+        objectDetected = false;
+    }
+    
+    if(contours.size() == 1)
+    {
+        ROS_INFO("# of points in contour: %lu", contours.at(0).size() );
+    }
+    //^^^^^^^^^^^^^^^^^
 
     cv_ptr->image = cvImage;
 
