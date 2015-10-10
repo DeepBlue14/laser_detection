@@ -75,7 +75,9 @@ class MotionSeg
 	    void callback(const sensor_msgs::ImageConstPtr& input);
         void filterByMotion(Mat nextImage);
         void searchForMovement(Mat thresholdImage, Mat& cameraFeed);
-        float verifyColor(vector<vector<Point> > movingObjectCoors, Point centerPixel);
+        float verifyColor(vector<vector<Point> > movingObjectCoors, Point centerPixel); //also handling size and shape
+        bool closeEnough(int x, int y, geometry_msgs::Point theCenterPoint);
+        bool hsvExistsNear(Mat cvImage, geometry_msgs::Point centerPoint); //!!!implement!!!
 	    void setActivateGuiBool(bool activateGuiBool);
 	    bool getActivateGuiBool();
         void setSensitivityInt(int sensitivityInt);

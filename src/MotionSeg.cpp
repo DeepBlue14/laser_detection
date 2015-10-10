@@ -34,6 +34,19 @@ void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
     }
     
     cvImage = cv_ptr->image;
+    
+    //swap R <-> B
+    int tmpColor;
+    for(size_t a = 0; a < cvImage.rows; a++)
+    {
+        for(size_t b = 0; b < cvImage.cols; b++)
+        {
+            tmpColor = cvImage.at<cv::Vec3b>(a, b)[0];
+            cvImage.at<cv::Vec3b>(a, b)[0] = cvImage.at<cv::Vec3b>(a, b)[2];
+            cvImage.at<cv::Vec3b>(a, b)[2] = tmpColor;
+        }
+    }
+    
     //- - - - - - - - - - - - - - - - - - - - -
     cv::cvtColor(cvImage, hsvImage, CV_BGR2HSV);
     /*cv::inRange(hsvImage,
@@ -117,8 +130,6 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
     {
         vector<vector<Point> > largestContourVec; // This is the moving object detected
         largestContourVec.push_back(contours.at(contours.size() - 1));
-       
-        //verifyColor(largestContourVec);
 
         // !!!approximate the center point of the object -- assuming the object at index 0 is correct!!!
         objectBoundingRectangle = boundingRect(largestContourVec.at(0));
@@ -137,8 +148,10 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
     cameraFeed.copyTo(finalImage);
    
 
-    if(getActivateGuiBool() && objectDetected)
+    //if(getActivateGuiBool() && objectDetected && closeEnough(x, y, getCenterPoint()) ) // ***James was here***
+    if(objectDetected)
     {
+        cout << "objectDetected = true" << endl;
 	    circle(finalImage, Point(x,y), 20, Scalar(0,255,0),2);
 	    line(finalImage, Point(x,y), Point(x,y-25), Scalar(0,255,0), 2);
 	    line(finalImage, Point(x,y), Point(x,y+25), Scalar(0,255,0), 2);
@@ -235,12 +248,106 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     /*if((hAv > 69.0 && hAv < 80.0)
     && (sAv > 39.0 && sAv < 50.0)
     && (vAv > 39.0 && vAv < 50.0) )*/
-        cout << "Average HSV: (" << hAv << ", " << sAv << ", " << vAv << ")" << endl;
+        //cout << "Average HSV: (" << hAv << ", " << sAv << ", " << vAv << ")" << endl;
 
     cv::imshow("Bound + 25px", prevImage);
     cv::waitKey(3);
 
     return probability;
+}
+
+
+bool MotionSeg::closeEnough(int x, int y, geometry_msgs::Point theCenterPoint)
+{
+    if(theCenterPoint.x == -1)
+    {
+        return true;//first iteration of run
+    }
+    else if((x > (theCenterPoint.x-25)) && (x < (theCenterPoint.x+25))
+         && (y > (theCenterPoint.y-25)) && (y < (theCenterPoint.y+25)) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+bool MotionSeg::hsvExistsNear(Mat cvImage, geometry_msgs::Point centerPoint) //!!!implement!!!
+{
+    cv::Mat hsxImage;
+    cv::cvtColor(cvImage, hsxImage, CV_BGR2HSV);
+   
+    cv::Mat inrangeImage;
+    
+    cv::inRange(hsxImage,
+                Scalar(0, 0, 255 ),
+                Scalar(116, 239, 361),
+                inrangeImage);
+    
+    cv::imshow("HSV Image", hsxImage);
+    cv::waitKey(3);
+    cv::imshow("inRange Image", inrangeImage);
+    cv::waitKey(3);
+    
+    bool objectDetected = false;
+    Mat temp;
+    inrangeImage.copyTo(temp);
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    int theObject[2] = {0,0};
+    Rect objectBoundingRectangle = Rect(0,0,0,0);
+
+    findContours(temp,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE );
+
+    if(contours.size() > 0)
+    {
+        ROS_INFO("# of shapes found: %lu", contours.size() );
+        objectDetected = true;
+    }
+    else
+    {
+        objectDetected = false;
+    }
+    
+    //find objects of specified HSV values which are of a certain size
+    for(size_t i = 0; i < contours.size(); i++)
+    {
+        if((contours.at(i).size() > 25) || (contours.at(i).size() < 3) )
+        {
+            contours.erase(contours.begin() );
+        }
+    }
+    
+    
+    //compare center of each object with the centerPoint (from motion)
+    for(size_t a = 0; a < contours.size(); a++)
+    {
+        geometry_msgs::Point tmpObjPoint;
+        int xSum = 0;
+        int ySum = 0;
+        int count = 0;
+        for(size_t b = 0; b < contours.at(a).size(); b++)
+        {
+            xSum += contours.at(a).at(b).x;
+            ySum += contours.at(a).at(b).y;
+            count++;
+        }
+        
+        int xAv = xSum / count;
+        int yAv = ySum / count;
+        if(((xAv < (centerPoint.x + 25)) && (xAv > (centerPoint.x - 25)))
+        && ((yAv < (centerPoint.y + 25)) && (yAv > (centerPoint.y - 25))) )
+        {
+            ;//found object near chosen motion object
+        }
+    }//end of loop
+    
+    
+    
+    return true;
 }
 
 
