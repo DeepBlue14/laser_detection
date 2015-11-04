@@ -12,7 +12,7 @@
 #include <ros/console.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <dynamic_reconfigure/server.h>
-#include <laser_detection/ImageParamsConfig.h>
+//#include <laser_detection/ImageParamsConfig.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/Image.h>
@@ -29,10 +29,10 @@ using namespace pcl;
 using namespace std;
 
 
-MotionSeg motionSeg;
 
 
-void drCallback(laser_detection::ImageParamsConfig& config, uint32_t level)
+
+/*void drCallback(laser_detection::ImageParamsConfig& config, uint32_t level)
 {
     if(config.Activate == true)
     {
@@ -45,7 +45,7 @@ void drCallback(laser_detection::ImageParamsConfig& config, uint32_t level)
     {
         ROS_INFO("GUI has not been activated\n");
     }
-}
+}*/
 
 
 int main(int argc, char **argv)
@@ -54,21 +54,21 @@ int main(int argc, char **argv)
     
     ROS_INFO("Starting node\n");
 
+    MotionSeg motionSeg;
     NodeHandle nh;
-
     Publisher* mainsPub = motionSeg.getPublisher();
-
     Subscriber sub = nh.subscribe<sensor_msgs::Image>("/camera/rgb/image_rect_color",
                                                         10,
                                                         &MotionSeg::callback,
                                                         &motionSeg);
 
-    *mainsPub = nh.advertise<geometry_msgs::Point>("/scooter/geometry_msgs/center_point", 10);
+    //*mainsPub = nh.advertise<geometry_msgs::Point>("/scooter/geometry_msgs/center_point", 10);
+    *mainsPub = nh.advertise<geometry_msgs::Point>("tablet/geometry_msgs/point", 10);
 
-    dynamic_reconfigure::Server<laser_detection::ImageParamsConfig> server;
-    dynamic_reconfigure::Server<laser_detection::ImageParamsConfig>::CallbackType f;
-    f = boost::bind(&drCallback, _1, _2);
-    server.setCallback(f);
+    //dynamic_reconfigure::Server<laser_detection::ImageParamsConfig> server;
+    //dynamic_reconfigure::Server<laser_detection::ImageParamsConfig>::CallbackType f;
+    //f = boost::bind(&drCallback, _1, _2);
+    //server.setCallback(f);
 
 
     spin();

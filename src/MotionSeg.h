@@ -15,15 +15,16 @@
 #ifndef MOTION_SEG_H
 #define MOTION_SEG_H
 
+// ROS
 #include <ros/ros.h>
 #include <ros/console.h>
-
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <geometry_msgs/Point.h>
 #include <dynamic_reconfigure/server.h>
-#include <laser_detection/ImageParamsConfig.h>
+//#include <laser_detection/ImageParamsConfig.h>
 
+// PCL
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_cloud.h>
@@ -32,7 +33,7 @@
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/filters/conditional_removal.h>
 
-
+// OpenCV
 #include <opencv/cv.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
@@ -41,11 +42,10 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-
+//STL
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -71,13 +71,29 @@ class MotionSeg
 	    Publisher* pub;
 
     public:
+        /**
+         * Constructor.
+         */
 	    MotionSeg();
+	    
+	    /**
+	     * Callback method.
+	     *
+	     * @param input
+	     */
 	    void callback(const sensor_msgs::ImageConstPtr& input);
-        void filterByMotion(Mat nextImage);
+	    
+	    /**
+	     * 
+	     */
+        void filter(Mat nextImage);
         void searchForMovement(Mat thresholdImage, Mat& cameraFeed);
         float verifyColor(vector<vector<Point> > movingObjectCoors, Point centerPixel); //also handling size and shape
         bool closeEnough(int x, int y, geometry_msgs::Point theCenterPoint);
         bool hsvExistsNear(Mat cvImage, geometry_msgs::Point centerPoint); //!!!implement!!!
+        
+        // Accessor and mutator methods
+        int count;
 	    void setActivateGuiBool(bool activateGuiBool);
 	    bool getActivateGuiBool();
         void setSensitivityInt(int sensitivityInt);
@@ -87,6 +103,8 @@ class MotionSeg
         void setCenterPoint(int x, int y);
         geometry_msgs::Point getCenterPoint();
 	    Publisher* getPublisher();
+	    
+	    string* toString();
 	    ~MotionSeg();
 
 };

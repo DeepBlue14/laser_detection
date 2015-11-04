@@ -45,15 +45,9 @@ To run individual nodes:
 ```bash
 roslaunch openni2_launch openni2.launch
 rosrun rviz rviz
-rosrun laser_detection MotionSeg_main /*OR*/ rosrun laser_detection ClickedImg
-rosrun laser_detection EvalPoint
-rosrun rqt_reconfigure rqt_reconfigure
+rosrun object_separator object_separator #catkin_ws
+rosrun laser_detection MotionSeg_main
 ```
-
-- In the rqt_reconfigure gui, select *camera* --> *driver* --> *depth_registration*
-- In rqt_reconfigure, select the "activate" checkbox for each node
-- In Rviz, select a "PointCloud2" option, and for the topic choose "/scooter/depth_registered/points".
-- *(Optional)* You can change parameters of the detection and segmentation using rqt_reconfigure
 
 
 

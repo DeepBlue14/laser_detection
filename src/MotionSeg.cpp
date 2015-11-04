@@ -1,9 +1,9 @@
 #include "MotionSeg.h"
 
 
-bool MotionSeg::activateGuiBool = false;
-int MotionSeg::sensitivityInt = 0;
-int MotionSeg::blurInt = 0;
+bool MotionSeg::activateGuiBool = false; //old: false
+int MotionSeg::sensitivityInt = 20;
+int MotionSeg::blurInt = 25;
 
 
 MotionSeg::MotionSeg()
@@ -15,18 +15,18 @@ MotionSeg::MotionSeg()
 }
 
 
+/**
+ * convert the ros image to an OpenCV matrix and ship it off for evaluation.
+ *
+ */
 void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
 {
-    //http://www.cse.sc.edu/~jokane/teaching/574/notes-images.pdf
-    
-    //convert to OpenCV type- - - - - - - - - - - - - - - - - -
     cv_bridge::CvImagePtr cv_ptr;
     cv::Mat cvImage;
 
     try
     {
-        //http://docs.ros.org/indigo/api/sensor_msgs/html/image__encodings_8h_source.html
-        cv_ptr = cv_bridge::toCvCopy(input/*, sensor_msgs::image_encodings::RGB16*//*RGB8*/); // TYPE_32SC4
+        cv_ptr = cv_bridge::toCvCopy(input);
     }
     catch(cv_bridge::Exception& e)
     {
@@ -47,63 +47,55 @@ void MotionSeg::callback(const sensor_msgs::ImageConstPtr& input)
         }
     }
     
-    //- - - - - - - - - - - - - - - - - - - - -
     cv::cvtColor(cvImage, hsvImage, CV_BGR2HSV);
-    /*cv::inRange(hsvImage,
-                Scalar(0, 0, 0),
-                Scalar(181, 361, 254),
-                hsvImage);*/
-    //- - - - - - - - - - - - - - - - - - - - -
-    cv::imshow("Initial Image", cvImage);
-    cv::waitKey(3);
+    //cv::imshow("Initial Image", cvImage);
+    //cv::waitKey(3);
 
     if(nextIterBool == true && getActivateGuiBool() == true)
     {
-        filterByMotion(cvImage);
+        filter(cvImage);
     }
     else
     {
         nextIterBool = true;
     }
-    Mat t = cvImage;
-    //- - - - - - - -
-    prevImage = cvImage;
-
+    
+    //Mat t = cvImage;
+    //prevImage = cvImage; //***here there be dragons*** --opencv implicitly uses reff, not value
+    cvImage.copyTo(prevImage);
     cv_ptr->image = cvImage;
-
-    //if(objectDetected)
-        pub->publish(centerPoint);
+    pub->publish(centerPoint);
+    activateGuiBool = true;
 }
 
 
-void MotionSeg::filterByMotion(Mat nextImage)
+/**
+ * Filter the image and pass it on.
+ */
+void MotionSeg::filter(Mat nextImage)
 {
     Mat grayImage1;
     Mat grayImage2;
     Mat differenceImage;
     Mat thresholdImage;
-
     cv::cvtColor(prevImage, grayImage1, COLOR_BGR2GRAY);
     cv::cvtColor(nextImage, grayImage2, COLOR_BGR2GRAY);
     cv::absdiff(grayImage1, grayImage2, differenceImage);
     cv::threshold(differenceImage, thresholdImage, getSensitivityInt(), 255, THRESH_BINARY);
-
-    cv::imshow("Difference Image", differenceImage);
-    cv::waitKey(3);
-    cv::imshow("Threshold Image", thresholdImage);
-    cv::waitKey(3);
-
-    cv::blur(thresholdImage, thresholdImage, cv::Size(getBlurInt(), getBlurInt() ) );
+    cv::blur(thresholdImage, thresholdImage, cv::Size(getBlurInt(), getBlurInt() ) ); //FIXME: this breaks on start
     cv::threshold(thresholdImage, thresholdImage, getSensitivityInt(), 255, THRESH_BINARY);
 
-    imshow("Final Threshold Image", thresholdImage);
-    cv::waitKey(3);
+    //imshow("Final Threshold Image", thresholdImage);
+    //cv::waitKey(3);
 
-    
     searchForMovement(thresholdImage, nextImage);
 }
 
 
+/**
+ * Evaluate the moving shapes.
+ * Baseline: They should be (, ) with a 
+ */
 void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
 {
     objectDetected = false;
@@ -111,10 +103,9 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
     thresholdImage.copyTo(temp);
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
-    int theObject[2] = {0,0};
-    Rect objectBoundingRectangle = Rect(0,0,0,0);
+    int theObject[2] = {0, 0};
 
-    findContours(temp,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE );
+    findContours(temp, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
     if(contours.size() > 0)
     {
@@ -123,47 +114,53 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
     }
     else
     {
-        objectDetected = false;
+        objectDetected = false; //this is redundent; objectDetected is already set to false by default
     }
     
     if(objectDetected)
     {
-        vector<vector<Point> > largestContourVec; // This is the moving object detected
-        largestContourVec.push_back(contours.at(contours.size() - 1));
+        vector<vector<Point> > largestContourVec;
+        if(contours.size() > 0)
+        {   
+            largestContourVec.push_back(contours.at(contours.size() - 1) ); //FIXME: this assumes that the last moving object in the vector is the correct one--an assumption that may not always be true
+        }
+        else
+        {   cerr << "Haha! I have found the segfault!" << endl;
+            exit(1);
+        }
+            
 
         // !!!approximate the center point of the object -- assuming the object at index 0 is correct!!!
-        objectBoundingRectangle = boundingRect(largestContourVec.at(0));
+        Rect objectBoundingRectangle = Rect(0, 0, 0, 0);
+        objectBoundingRectangle = boundingRect(largestContourVec.at(0) );
         int xpos = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
         int ypos = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
-
-        theObject[0] = xpos, theObject[1] = ypos;
         
-        verifyColor(largestContourVec, Point(xpos, ypos));
+        theObject[0] = xpos, theObject[1] = ypos;
+        verifyColor(largestContourVec, Point(xpos, ypos) );
     }
-
+    
     int x = theObject[0];
     int y = theObject[1];
    
     Mat finalImage;
     cameraFeed.copyTo(finalImage);
-   
 
     //if(getActivateGuiBool() && objectDetected && closeEnough(x, y, getCenterPoint()) ) // ***James was here***
     if(objectDetected)
     {
         cout << "objectDetected = true" << endl;
-	    circle(finalImage, Point(x,y), 20, Scalar(0,255,0),2);
-	    line(finalImage, Point(x,y), Point(x,y-25), Scalar(0,255,0), 2);
-	    line(finalImage, Point(x,y), Point(x,y+25), Scalar(0,255,0), 2);
-	    line(finalImage, Point(x,y), Point(x-25,y), Scalar(0,255,0), 2);
-	    line(finalImage, Point(x,y), Point(x+25,y), Scalar(0,255,0), 2);
-    
-        ostringstream convert;
+	    circle(finalImage, Point(x, y), 20, Scalar(0, 255, 0), 2);
+	    line(finalImage, Point(x, y), Point(x, y-25), Scalar(0, 255, 0), 2);
+	    line(finalImage, Point(x, y), Point(x, y+25), Scalar(0, 255, 0), 2);
+	    line(finalImage, Point(x, y), Point(x-25, y), Scalar(0, 255, 0), 2);
+	    line(finalImage, Point(x, y), Point(x+25, y), Scalar(0, 255, 0), 2);
+        ostringstream convert; //FIXME: make this a member variable
         convert << "tracking object at (" << x << ", " << y << ")";
         setCenterPoint(x, y); // Set member variable
-	    putText(finalImage, convert.str(), Point(x,y), 1, 1, Scalar(255,0,0), 2);
+	    putText(finalImage, convert.str(), Point(x, y), 1, 1, Scalar(255, 0, 0), 2);
     }
-
+    
     cv::imshow("Final Image", finalImage);
     cv::waitKey(3);
 }
@@ -179,13 +176,13 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     float vAv = 0.0;
     float probability = 0.0;
 
-/////////////////////////////////////////////////////////////////
     //cling to contours
     int maxX = -1;
     int minX = 1000000;
     int maxY = -1;
     int minY = 1000000;
     const int OFFSET = 7; // final: 5
+    
     for(size_t i = 0; i < movingObjectCoors.at(0).size(); i++)
     {   
         if((movingObjectCoors.at(0).at(i).y < centerPixel.y) && (i+OFFSET <= prevImage.rows)
@@ -220,16 +217,19 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
             maxX = movingObjectCoors.at(0).at(i).x;
         else if(movingObjectCoors.at(0).at(i).x < minX)
             minX = movingObjectCoors.at(0).at(i).x;
+
         
         if(movingObjectCoors.at(0).at(i).y > maxY)
             maxY = movingObjectCoors.at(0).at(i).y;
         else if(movingObjectCoors.at(0).at(i).y < minY)
             minY = movingObjectCoors.at(0).at(i).y;
+
     }
-////////////////////////////////////////////////////////////
+
 
     if(((maxX - minX) < 25) && ((maxY - minY) < 25) ) // i.e. moving object is about the right size
-        cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(255, 0, 0), 1);
+        cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(255, 0, 0), 1); // blue?
+        
         
     float count = 0.0;
     for(size_t y = 0; y < maxY; y++)
@@ -242,6 +242,7 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
             count++;
         }
     }
+    
     hAv = hSum / count;
     sAv = sSum / count;
     vAv = sSum / count;
@@ -250,8 +251,9 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     && (vAv > 39.0 && vAv < 50.0) )*/
         //cout << "Average HSV: (" << hAv << ", " << sAv << ", " << vAv << ")" << endl;
 
-    cv::imshow("Bound + 25px", prevImage);
-    cv::waitKey(3);
+
+    //cv::imshow("Bound + 25px", prevImage);
+    //cv::waitKey(3);
 
     return probability;
 }
@@ -279,28 +281,26 @@ bool MotionSeg::hsvExistsNear(Mat cvImage, geometry_msgs::Point centerPoint) //!
 {
     cv::Mat hsxImage;
     cv::cvtColor(cvImage, hsxImage, CV_BGR2HSV);
-   
     cv::Mat inrangeImage;
-    
     cv::inRange(hsxImage,
                 Scalar(0, 0, 255 ),
                 Scalar(116, 239, 361),
                 inrangeImage);
-    
-    cv::imshow("HSV Image", hsxImage);
-    cv::waitKey(3);
-    cv::imshow("inRange Image", inrangeImage);
-    cv::waitKey(3);
+
+    //cv::imshow("HSV Image", hsxImage);
+    //cv::waitKey(3);
+    //cv::imshow("inRange Image", inrangeImage);
+    //cv::waitKey(3);
     
     bool objectDetected = false;
     Mat temp;
     inrangeImage.copyTo(temp);
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
-    int theObject[2] = {0,0};
-    Rect objectBoundingRectangle = Rect(0,0,0,0);
+    int theObject[2] = {0, 0};
+    Rect objectBoundingRectangle = Rect(0, 0, 0, 0);
 
-    findContours(temp,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE );
+    findContours(temp, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
     if(contours.size() > 0)
     {
@@ -403,6 +403,12 @@ geometry_msgs::Point MotionSeg::getCenterPoint()
 Publisher* MotionSeg::getPublisher()
 {
     return pub;
+}
+
+
+string* toString()
+{
+    ;
 }
 
 

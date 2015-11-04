@@ -1,7 +1,49 @@
 ###**TODO**
 
-- Check OpenCV's ```dialate``` and ```erode``` functions.
-- Connect **color**, **shape**, and **motion** detection *(running in parallel)*
-- Link up link in MotionDetection.h file about contours; it may be useful for shape detection *(i.e. a circular point)*
-- Try HSV color model
-- May have to modify the topic queues to keep the processes relatively in sinc.
+**Algorithm**
+
+*On start*
+
+- motion    (find moving regions)
+- size      (which ARE the most correct size to be a laser point?)
+- color     (which ONE is the best color?)
+
+
+
+*Post Start*
+
+- motion    (find moving regions)
+- size      (which ARE the most correct size to be a laser point?)
+- color     (which ONE IS the BEST color?)
+- loc       (how far is it from the laser in the previous frame)
+
+
+
+
+
+
+
+
+
+
+
+**Components**
+
+- motion
+- color
+- size
+- loc (distance from last laser location)
+
+**Assumtions && Notes**
+
+- This is one and only one laser on at all times (if the laser is not on, don't run the software)
+- Due to the limitations of the sensors, this algorithm is partially based on "which is the best fit", NOT "which fits some exact specifications"
+
+
+pre:
+
+
+
+post:
+
+
