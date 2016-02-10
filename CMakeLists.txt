@@ -43,13 +43,13 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add "message_generation" and every package in MSG_DEP_SET to
 ##     find_package(catkin REQUIRED COMPONENTS ...)
 
-generate_dynamic_reconfigure_options(
-    cfg/ImageParams.cfg
-    cfg/CloudParams.cfg
-    cfg/HsxParams.cfg
-    cfg/EvalPoint.cfg
+#generate_dynamic_reconfigure_options(
+#    cfg/ImageParams.cfg
+#    cfg/CloudParams.cfg
+#    cfg/HsxParams.cfg
+#    cfg/EvalPoint.cfg
   #...
-)
+#)
 
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
 ##     catkin_package(CATKIN_DEPENDS ...)
@@ -190,7 +190,7 @@ add_executable(MotionSeg_main src/MotionSeg_main.cpp
                               src/MotionSeg.cpp)
 target_link_libraries(MotionSeg_main ${catkin_LIBRARIES})
 target_link_libraries(MotionSeg_main ${OpenCV_LIBRARIES})
-add_dependencies(MotionSeg_main ${laser_detection}_gencfg)
+#add_dependencies(MotionSeg_main ${laser_detection}_gencfg)
 
 #add_executable(ShapeSeg_main src/ShapeSeg_main.cpp
 #                             src/ShapeSeg.cpp)
@@ -225,9 +225,9 @@ add_dependencies(MotionSeg_main ${laser_detection}_gencfg)
 #target_link_libraries(ClickedImg ${OpenCV_LIBRARIES})
 
 
-add_executable(EvalPoint src/EvalPoint_main.cpp
-                         src/EvalPoint.cpp)
-target_link_libraries(EvalPoint ${catkin_LIBRARIES})
-target_link_libraries(EvalPoint ${OpenCV_LIBRARIES})
-add_dependencies(EvalPoint ${rcv_image_view}_gencfg)
+#add_executable(EvalPoint src/EvalPoint_main.cpp
+#                         src/EvalPoint.cpp)
+#target_link_libraries(EvalPoint ${catkin_LIBRARIES})
+#target_link_libraries(EvalPoint ${OpenCV_LIBRARIES})
+#add_dependencies(EvalPoint ${rcv_image_view}_gencfg)
 

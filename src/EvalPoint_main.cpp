@@ -13,7 +13,7 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <dynamic_reconfigure/server.h>
-#include <laser_detection/EvalPointConfig.h>
+//#include <laser_detection/EvalPointConfig.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_cloud.h>
