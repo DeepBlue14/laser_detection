@@ -18,8 +18,8 @@
 
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <dynamic_reconfigure/server.h>
-#include <laser_detection/ImageParamsConfig.h>
+//#include <dynamic_reconfigure/server.h>
+//#include <laser_detection/ImageParamsConfig.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
@@ -57,12 +57,20 @@ class ColorSeg
 {
     private:
 	    static bool activateGuiBool;
+	    
 	    static int redMinInt;
 	    static int greenMinInt;
 	    static int blueMinInt;
         static int redMaxInt;
         static int greenMaxInt;
         static int blueMaxInt;
+
+        static int hMinInt;
+        static int sMinInt;
+        static int vMinInt;
+        static int hMaxInt;
+        static int sMaxInt;
+        static int vMaxInt;
 
         vector<int> validXVec;
         vector<int> validYVec;
@@ -76,8 +84,11 @@ class ColorSeg
     public:
 	    ColorSeg();
 	    void callback(const sensor_msgs::ImageConstPtr& input);
+	    
 	    void setActivateGuiBool(bool activateGuiBool);
 	    bool getActivateGuiBool();
+	    
+	    //RGB
 	    void setRedMinInt(int redMinInt);
 	    int getRedMinInt();
 	    void setGreenMinInt(int greenMinInt);
@@ -90,6 +101,21 @@ class ColorSeg
         int getGreenMaxInt();
         void setBlueMaxInt(int blueMaxInt);
         int getBlueMaxInt();
+        
+        //HSV
+        void setHMinInt(int hMinInt);
+        int getHMinInt();
+        void setSMinInt(int sMinInt);
+        int getSMinInt();
+        void setVMinInt(int vMinInt);
+        int getVMinInt();
+        void setHMaxInt(int hMaxInt);
+        int getHMaxInt();
+        void setSMaxInt(int sMaxInt);
+        int getSMaxInt();
+        void setVMaxInt(int vMaxInt);
+        int getVMaxInt();
+        
 	    Publisher* getPublisher();
 	    ~ColorSeg();
 

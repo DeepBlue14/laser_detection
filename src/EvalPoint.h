@@ -19,7 +19,7 @@
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Point.h>
 #include <dynamic_reconfigure/server.h>
-#include <laser_detection/EvalPointConfig.h>
+//#include <laser_detection/EvalPointConfig.h>
 
 #include <opencv/cv.h>
 #include <image_transport/image_transport.h>

@@ -43,6 +43,13 @@ void drCallback(laser_detection::ImageParamsConfig& config, uint32_t level)
         colorSeg.setRedMaxInt(config.Red_Max);
         colorSeg.setGreenMaxInt(config.Green_Max);
         colorSeg.setBlueMaxInt(config.Blue_Max);
+        
+        colorSeg.setHMinInt(config.H_Min);
+        colorSeg.setSMinInt(config.S_Min);
+        colorSeg.setVMinInt(config.V_Min);
+        colorSeg.setHMaxInt(config.H_Max);
+        colorSeg.setSMaxInt(config.S_Max);
+        colorSeg.setVMaxInt(config.V_Max);
     }
     else
     {

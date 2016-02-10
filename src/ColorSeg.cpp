@@ -1,6 +1,7 @@
 #include "ColorSeg.h"
 
 
+//Force initialization of static vars
 bool ColorSeg::activateGuiBool = false;
 int ColorSeg::redMinInt = 0;
 int ColorSeg::greenMinInt = 0;
@@ -8,6 +9,12 @@ int ColorSeg::blueMinInt = 0;
 int ColorSeg::redMaxInt = 0;
 int ColorSeg::greenMaxInt = 0;
 int ColorSeg::blueMaxInt = 0;
+int ColorSeg::hMinInt = 0;
+int ColorSeg::sMinInt = 0;
+int ColorSeg::vMinInt = 0;
+int ColorSeg::hMaxInt = 0;
+int ColorSeg::sMaxInt = 0;
+int ColorSeg::vMaxInt = 0;
 
 
 ColorSeg::ColorSeg()
@@ -49,15 +56,46 @@ void ColorSeg::callback(const sensor_msgs::ImageConstPtr& input)
     }
     
     cvImage = cv_ptr->image;
-    cv::imshow("Initial Image", cvImage);
+    //swap R <-> B
+    int tmpColor;
+    for(size_t a = 0; a < cvImage.rows; a++)
+    {
+        for(size_t b = 0; b < cvImage.cols; b++)
+        {
+            tmpColor = cvImage.at<cv::Vec3b>(a, b)[0];
+            cvImage.at<cv::Vec3b>(a, b)[0] = cvImage.at<cv::Vec3b>(a, b)[2];
+            cvImage.at<cv::Vec3b>(a, b)[2] = tmpColor;
+        }
+    }
+    
+    cv::imshow("Initial RGB Image", cvImage);
     cv::waitKey(3);
-
+    
+    cv::Mat hsvImage;
+    cvtColor(cvImage, hsvImage, COLOR_RGB2HSV);
+    cv::imshow("Initial HSV Image", hsvImage);
+    cv::waitKey(3);
+    
     cv::inRange(cvImage,
                 Scalar(getRedMinInt(), getGreenMinInt(), getBlueMinInt() ),
                 Scalar(getRedMaxInt(), getGreenMaxInt(), getBlueMaxInt() ),
                 cvImage);
+    cv::imshow("Final RGB Image", cvImage);
+    cv::waitKey(3);
+    
+    cv::inRange(hsvImage,
+                Scalar(getHMinInt(), getSMinInt(), getVMinInt() ),
+                Scalar(getHMaxInt(), getSMaxInt(), getVMaxInt() ),
+                hsvImage);
+    cv::imshow("Final HSV Image", hsvImage);
+    cv::waitKey(3);
 
+    
 
+    
+    
+    
+    
 /*
  // Circle detection
  //http://www.pyimagesearch.com/2014/07/21/detecting-circles-images-using-opencv-hough-circles/
@@ -86,11 +124,9 @@ void ColorSeg::callback(const sensor_msgs::ImageConstPtr& input)
     }
 */
 
-    cv::imshow("Final Image", cvImage);
-    cv::waitKey(3);
+    
 
     cv_ptr->image = cvImage;
-
     pub->publish(cv_ptr->toImageMsg() );
 }
 
@@ -107,6 +143,7 @@ bool ColorSeg::getActivateGuiBool()
 }
 
 
+// RGB
 void ColorSeg::setRedMinInt(int redMinInt)
 {
     this->redMinInt = redMinInt;
@@ -176,6 +213,79 @@ void ColorSeg::setBlueMaxInt(int blueMaxInt)
 int ColorSeg::getBlueMaxInt()
 {
     return blueMaxInt;
+}
+
+
+// HSV
+void ColorSeg::setHMinInt(int hMinInt)
+{
+    this->hMinInt = hMinInt;
+}
+
+
+int ColorSeg::getHMinInt()
+{
+    return hMinInt;
+}
+
+
+void ColorSeg::setSMinInt(int sMinInt)
+{
+    this->sMinInt = sMinInt;
+}
+
+
+int ColorSeg::getSMinInt()
+{
+    return sMinInt;
+}
+
+
+void ColorSeg::setVMinInt(int vMinInt)
+{
+    this->vMinInt = vMinInt;
+}
+
+
+int ColorSeg::getVMinInt()
+{
+    return vMinInt;
+}
+
+
+void ColorSeg::setHMaxInt(int hMaxInt)
+{
+    this->hMaxInt = hMaxInt;
+}
+
+
+int ColorSeg::getHMaxInt()
+{
+    return hMaxInt;
+}
+
+
+void ColorSeg::setSMaxInt(int sMaxInt)
+{
+    this->sMaxInt = sMaxInt;
+}
+
+
+int ColorSeg::getSMaxInt()
+{
+    return sMaxInt;
+}
+
+
+void ColorSeg::setVMaxInt(int vMaxInt)
+{
+    this->vMaxInt = vMaxInt;
+}
+
+
+int ColorSeg::getVMaxInt()
+{
+    return vMaxInt;
 }
 
 
