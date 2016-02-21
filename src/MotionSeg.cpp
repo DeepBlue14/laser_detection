@@ -185,7 +185,7 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     
     for(size_t i = 0; i < movingObjectCoors.at(0).size(); i++)
     {   
-        if((movingObjectCoors.at(0).at(i).y < centerPixel.y) && (i+OFFSET <= prevImage.rows)
+        /*if((movingObjectCoors.at(0).at(i).y < centerPixel.y) && (i+OFFSET <= prevImage.rows)
         && (movingObjectCoors.at(0).at(i).x < centerPixel.x) && (i+OFFSET <= prevImage.cols) )
         {
             prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y + OFFSET, movingObjectCoors.at(0).at(i).x + OFFSET)[2] = 255;
@@ -208,7 +208,7 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
         else
         {
             prevImage.at<cv::Vec3b>(movingObjectCoors.at(0).at(i).y, movingObjectCoors.at(0).at(i).x)[2] = 255;
-        }
+        }*/
         
         //hSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[0];   // H
         //sSum += hsvImage.at<cv::Vec3b>(centerPixel.y + i, centerPixel.x)[1];   // S
@@ -228,8 +228,52 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
 
 
     if(((maxX - minX) < 25) && ((maxY - minY) < 25) ) // i.e. moving object is about the right size
-        cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(255, 0, 0), 1); // blue?
+    {
         
+        
+        int averageRed = 0;
+        int averageGreen = 0;
+        int averageBlue = 0;
+        int whiteCounter = 0;
+        //calculate averate rgb values for potental laser
+        for(size_t i = (minX+OFFSET); i < (maxX-OFFSET); i++)
+        {
+            for(size_t j = (minY+OFFSET); j < (maxY-OFFSET); j++)
+            {
+                averageRed += prevImage.at<cv::Vec3b>(j, i)[0];
+                averageGreen += prevImage.at<cv::Vec3b>(j, i)[1];
+                averageBlue += prevImage.at<cv::Vec3b>(j, i)[2];
+                //prevImage.at<cv::Vec3b>(j, i)[0] = 255;
+                //prevImage.at<cv::Vec3b>(j, i)[1] = 140;
+                //prevImage.at<cv::Vec3b>(j, i)[2] = 0;
+                if(prevImage.at<cv::Vec3b>(j, i)[0] > 250 && 
+                   prevImage.at<cv::Vec3b>(j, i)[1] > 250 && 
+                   prevImage.at<cv::Vec3b>(j, i)[0] > 250)
+                   {
+                        whiteCounter++;
+                   }
+            }
+            
+        }
+        int totalCount = (((maxX-OFFSET)-(minX+OFFSET)) * ((maxY-OFFSET)-(minY+OFFSET)));
+        if(totalCount > 0)
+        {
+            averageRed = averageRed/totalCount;
+            averageGreen = averageGreen/totalCount;
+            averageBlue = averageBlue/totalCount;
+        }
+        
+        //cout << "average: rgb(" << averageRed << ", " << averageGreen << ", " << averageBlue << ")" << endl;
+        
+        //we have a winner (size-wise)!
+        cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(255, 0, 255), 1); // blue
+        if(whiteCounter > 5)
+        {
+            cout << "................." << endl;
+            cout << "...found laser..." << endl;
+            cout << "................." << endl;
+        }
+    }   
         
     float count = 0.0;
     for(size_t y = 0; y < maxY; y++)
@@ -252,8 +296,8 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
         //cout << "Average HSV: (" << hAv << ", " << sAv << ", " << vAv << ")" << endl;
 
 
-    //cv::imshow("Bound + 25px", prevImage);
-    //cv::waitKey(3);
+    cv::imshow("Bound + 25px", prevImage);
+    cv::waitKey(3);
 
     return probability;
 }

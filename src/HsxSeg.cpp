@@ -40,6 +40,17 @@ void HsxSeg::callback(const sensor_msgs::ImageConstPtr& input)
     }
     
     cvImage = cv_ptr->image;
+    //swap R <-> B
+    int tmpColor;
+    for(size_t a = 0; a < cvImage.rows; a++)
+    {
+        for(size_t b = 0; b < cvImage.cols; b++)
+        {
+            tmpColor = cvImage.at<cv::Vec3b>(a, b)[0];
+            cvImage.at<cv::Vec3b>(a, b)[0] = cvImage.at<cv::Vec3b>(a, b)[2];
+            cvImage.at<cv::Vec3b>(a, b)[2] = tmpColor;
+        }
+    }
     cv::imshow("Initial Image", cvImage);
     cv::waitKey(3);
 
