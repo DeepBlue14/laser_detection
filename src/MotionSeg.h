@@ -21,17 +21,6 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <geometry_msgs/Point.h>
-#include <dynamic_reconfigure/server.h>
-//#include <laser_detection/ImageParamsConfig.h>
-
-// PCL
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl_ros/point_cloud.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/filters/conditional_removal.h>
 
 // OpenCV
 #include <opencv/cv.h>
@@ -49,20 +38,17 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <string>
-#include <assert.h>
 
 using namespace ros;
-using namespace pcl;
 using namespace cv;
 using namespace std;
 
 class MotionSeg
 {
     private:
-	    static bool activateGuiBool;
-        static int sensitivityInt;
-        static int blurInt;
+        bool isInitialized;
+        const int SENSITIVITY;
+        const int BLUR;
         bool nextIterBool;
         bool objectDetected;
         Mat prevImage;
@@ -71,35 +57,15 @@ class MotionSeg
 	    Publisher* pub;
 
     public:
-        /**
-         * Constructor.
-         */
-	    MotionSeg();
-	    
-	    /**
-	     * Callback method.
-	     *
-	     * @param input
-	     */
+	    MotionSeg(int sensitivity = 20, int blue = 25);
 	    void callback(const sensor_msgs::ImageConstPtr& input);
-	    
-	    /**
-	     * 
-	     */
         void filter(Mat nextImage);
         void searchForMovement(Mat thresholdImage, Mat& cameraFeed);
+        bool verifySize();
         float verifyColor(vector<vector<Point> > movingObjectCoors, Point centerPixel); //also handling size and shape
         bool closeEnough(int x, int y, geometry_msgs::Point theCenterPoint);
         bool hsvExistsNear(Mat cvImage, geometry_msgs::Point centerPoint); //!!!implement!!!
-        
-        // Accessor and mutator methods
-        int count;
-	    void setActivateGuiBool(bool activateGuiBool);
-	    bool getActivateGuiBool();
-        void setSensitivityInt(int sensitivityInt);
-        int getSensitivityInt();
-        void setBlurInt(int blurInt);
-        int getBlurInt();
+
         void setCenterPoint(int x, int y);
         geometry_msgs::Point getCenterPoint();
 	    Publisher* getPublisher();
