@@ -11,7 +11,7 @@
  *
  * Created May 26, 2015 at 6:00pm
  */
-
+ 
 #ifndef MOTION_SEG_H
 #define MOTION_SEG_H
 

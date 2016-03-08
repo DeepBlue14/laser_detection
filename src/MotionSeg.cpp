@@ -8,7 +8,7 @@ MotionSeg::MotionSeg(int sensitivity, int blur) : SENSITIVITY(sensitivity), BLUR
     pub = new Publisher();
     centerPoint.x = -1;
     centerPoint.y = -1;
-    centerPoint.z = -1;
+    centerPoint.z = -1; 
 }
 
 
@@ -143,6 +143,7 @@ void MotionSeg::searchForMovement(Mat thresholdImage, Mat& cameraFeed)
     if(objectDetected)
     {
         //cout << "objectDetected = true" << endl;
+        //draw crosshair scope in green
 	    circle(finalImage, Point(x, y), 20, Scalar(0, 255, 0), 2);
 	    line(finalImage, Point(x, y), Point(x, y-25), Scalar(0, 255, 0), 2);
 	    line(finalImage, Point(x, y), Point(x, y+25), Scalar(0, 255, 0), 2);
@@ -195,7 +196,7 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
 
     }
 
-    if(( (maxX - minX) < 25) && ((maxY - minY) < 25) && (minX+OFFSET) > -1 && (maxX-OFFSET) > -1 && (minY+OFFSET) > -1 && (maxY-OFFSET) > -1)
+    if(( (maxX - minX) < 25) && ((maxX - minX) > 2) && ((maxY - minY) < 25) && ((maxY - minY) > 2) && (minX+OFFSET) > -1 && (maxX-OFFSET) > -1 && (minY+OFFSET) > -1 && (maxY-OFFSET) > -1)
     {
         isTheLaser = true;
         probability += 0.40;
@@ -203,7 +204,7 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
     //return isTheLaser;
     ///-----------------------------------------------------------
 
-    if( ( (maxX - minX) < 25) && ((maxY - minY) < 25) ) // i.e. moving object is about the right size
+    if( ((maxX - minX) < 25) && ((maxX - minX) > 2) && ((maxY - minY) < 25) && ((maxY - minY) > 2) ) // i.e. moving object is about the right size
     {
         int averageRed = 0;
         int averageGreen = 0;
@@ -223,15 +224,18 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
                     averageGreen += prevImage.at<cv::Vec3b>(j, i)[1];
                     averageBlue += prevImage.at<cv::Vec3b>(j, i)[2];
 
-                    prevImage.at<cv::Vec3b>(j, i)[0] = 255;
-                    prevImage.at<cv::Vec3b>(j, i)[1] = 140;
-                    prevImage.at<cv::Vec3b>(j, i)[2] = 0;
+                    //draw pixels blue
+                    //FIXME: this is breaking whiteCounter because the pixels are now blue (instead of white)
+                    //prevImage.at<cv::Vec3b>(j, i)[0] = 255;
+                    //prevImage.at<cv::Vec3b>(j, i)[1] = 140;
+                    //prevImage.at<cv::Vec3b>(j, i)[2] = 0;
 
                 
                    if(prevImage.at<cv::Vec3b>(j, i)[0] > 250 && 
                     prevImage.at<cv::Vec3b>(j, i)[1] > 250 && 
                     prevImage.at<cv::Vec3b>(j, i)[0] > 250)
                    {
+                        cout << "wc" << whiteCounter << endl;
                         whiteCounter++;
                    }
                 } 
@@ -250,13 +254,18 @@ float MotionSeg::verifyColor(vector<vector<Point> > movingObjectCoors, Point cen
         
         //cout << "average: rgb(" << averageRed << ", " << averageGreen << ", " << averageBlue << ")" << endl;
         
-        //we have a winner (size-wise)!
-        cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(255, 0, 255), 1); // blue
-
-        if(whiteCounter > 10)
+        //we have a winner (size-wise)! 
+        //draw pink rectangle around object
+        cv::rectangle(prevImage, Point(minX+OFFSET, minY+OFFSET), Point(maxX-OFFSET, maxY-OFFSET), Scalar(255, 0, 255), 1);
+        cv::rectangle(prevImage, Point(minX+OFFSET-10, minY+OFFSET-10), Point(maxX-OFFSET+10, maxY-OFFSET+10), Scalar(0, 0, 255), 1);
+        //TODO scan the larger rectangle and sample each pixel in it for green > red && green > blue
+        //this if true it will increase confidence of laser
+        cout << "whitecounter: " << whiteCounter << endl;
+        if(whiteCounter >= 5)//old: 10
         {
             cout << "\033[0;34m.................\033[0m\n" << endl;
             cout << "\033[0;34m...found laser...\033[0m\n" << endl;
+            //cout << "\033[0;34m(" << (minX+maxX/2) << ", " << (minY+maxY/2) << ")\033[0m\n" << endl;
             cout << "\033[0;34m.................\033[0m\n" << endl;
             probability += 0.40;
         }
@@ -317,7 +326,7 @@ bool MotionSeg::hsvExistsNear(Mat cvImage, geometry_msgs::Point centerPoint) //!
 
     if(contours.size() > 0)
     {
-        ROS_INFO("# of shapes found: %lu", contours.size() );
+        //ROS_INFO("# of shapes found: %lu", contours.size() );
         objectDetected = true;
     }
     else
